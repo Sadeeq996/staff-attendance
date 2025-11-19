@@ -1,4 +1,4 @@
-<ion-header [translucent]="true">
+<!-- <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>history</ion-title>
   </ion-toolbar>
@@ -10,4 +10,30 @@
       <ion-title size="large">history</ion-title>
     </ion-toolbar>
   </ion-header>
+</ion-content> -->
+
+
+
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Attendance History</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/dashboard">Back</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item *ngFor="let r of records">
+      <ion-label>
+        <h3>{{ r.shift | uppercase }} — {{ r.status }}</h3>
+        <p>{{ r.timestamp | date: 'medium' }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="records.length === 0">
+    <ion-note color="medium">No attendance records yet.</ion-note>
+  </div>
 </ion-content>

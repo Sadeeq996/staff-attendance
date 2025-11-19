@@ -15,8 +15,8 @@ export class AuthService {
 
   // mock users
   private mockUsers: User[] = [
-    { id: 1, email: 'alice@example.com', fullName: 'Alice Nurse', role: 'staff', hospitalId: 1 },
-    { id: 2, email: 'bob@example.com', fullName: 'Bob Admin', role: 'hospital_admin', hospitalId: 1 }
+    { id: 1, email: 'staff@attendance.com', fullName: 'Alice Nurse', role: 'staff', hospitalId: 1 },
+    { id: 2, email: 'admin@attendance.com', fullName: 'Bob Admin', role: 'hospital_admin', hospitalId: 1 }
   ];
 
 
