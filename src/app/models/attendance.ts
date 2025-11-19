@@ -4,5 +4,6 @@ export interface Attendance {
     hospitalId?: number;
     shift: 'morning' | 'night';
     status: 'IN' | 'OUT';
-    timestamp: string; // ISO
+    timestamp: string; // ISO;
+    durationMinutes?: number; // only for OUT records
 }

@@ -25,10 +25,8 @@
 
 <ion-content class="ion-padding">
   <h2>Welcome, {{user?.fullName}}</h2>
-  <!-- <p>Today's date: {{ (new Date()).toDateString() }}</p> -->
   <p>Today's date: {{ today }}</p>
-  <p>Today's date: {{ displayDate }}</p>
-
+  <p>{{ displayDate }}</p>
 
   <div *ngIf="assignedShift; else noShift">
     <ion-card>
@@ -39,10 +37,15 @@
         <h3>{{assignedShift | uppercase}}</h3>
         <p>Tap to record attendance</p>
 
-        <ion-button expand="block" (click)="clockIn()">Clock In</ion-button>
-        <ion-button expand="block" fill="outline" (click)="clockOut()">Clock Out</ion-button>
+        <ion-button expand="block" (click)="clockIn()" [disabled]="clockInTime">Clock In</ion-button>
+        <ion-button expand="block" fill="outline" (click)="clockOut()" [disabled]="!clockInTime || clockOutTime">Clock
+          Out</ion-button>
 
         <div *ngIf="message" style="margin-top:12px">{{message}}</div>
+        <div *ngIf="durationText" style="margin-top:8px; font-weight:bold">{{durationText}}</div>
+
+        <p *ngIf="clockInTime">Clocked in at: {{clockInTime | date:'shortTime'}}</p>
+        <p *ngIf="clockOutTime">Clocked out at: {{clockOutTime | date:'shortTime'}}</p>
       </ion-card-content>
     </ion-card>
   </div>
