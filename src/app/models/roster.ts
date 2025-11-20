@@ -1,5 +1,15 @@
+// export interface Roster {
+//     date: string; // yyyy-mm-dd
+//     userId: number;
+//     shift: 'morning' | 'night';
+// }
+
+
 export interface Roster {
-    date: string; // yyyy-mm-dd
+    id: string; // uuid
     userId: number;
-    shift: 'morning' | 'night';
+    hospitalId: number;
+    date: string; // YYYY-MM-DD
+    shift: 'morning' | 'night' | 'off';
+    manuallyAssigned: boolean; // true if admin changed it
 }

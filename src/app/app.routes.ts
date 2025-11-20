@@ -29,4 +29,8 @@ export const routes: Routes = [
     path: 'staff-list',
     loadComponent: () => import('./pages/staff/staff-list/staff-list.page').then( m => m.StaffListPage)
   },
+  {
+    path: 'shift-planner',
+    loadComponent: () => import('./pages/admin/shift-planner/shift-planner.page').then( m => m.ShiftPlannerPage)
+  },
 ];
