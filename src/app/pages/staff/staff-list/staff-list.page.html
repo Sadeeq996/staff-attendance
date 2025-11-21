@@ -1,13 +1,19 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>staff-list</ion-title>
+    <ion-title>Staff List</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">staff-list</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item *ngFor="let u of users">
+      <ion-label>
+        <h3>{{ u.fullName }}</h3>
+        <p>{{ u.email }}</p>
+        <p>Shift: {{ getShiftForUser(u) | uppercase }}</p>
+        <p>Status: <strong>{{ isClockedIn(u) ? 'Clocked In' : 'Not In' }}</strong></p>
+      </ion-label>
+      <ion-button slot="end" (click)="goProfile(u)">Profile</ion-button>
+    </ion-item>
+  </ion-list>
 </ion-content>
