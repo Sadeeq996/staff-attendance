@@ -27,7 +27,7 @@ export class LoginPage implements OnInit {
     this.error = '';
     try {
       await this.auth.login(this.email, this.password);
-      this.router.navigateByUrl('/dashboard');
+      this.router.navigateByUrl('/dashboard', { replaceUrl: true });
     } catch (err: any) {
       this.error = err?.toString() || 'Login failed';
     }

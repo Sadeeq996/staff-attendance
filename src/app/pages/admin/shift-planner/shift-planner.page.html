@@ -1,10 +1,23 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-title>Shift Planner</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
+
+  <div class="toolbar-row">
+    <ion-button size="small" (click)="prevMonth()">Prev</ion-button>
+    <div class="month-title">{{ year }} - {{ month }}</div>
+    <ion-button size="small" (click)="nextMonth()">Next</ion-button>
+
+    <div style="flex:1"></div>
+
+    <ion-button color="medium" (click)="copyPreviousMonth()">Copy Prev Month</ion-button>
+    <ion-button color="tertiary" (click)="bulkAssign('off')">Set All Off (Selected User)</ion-button>
+    <ion-button color="primary" (click)="bulkAssign('morning')">Set All Morning (Selected User)</ion-button>
+  </div>
+
   <ion-item>
     <ion-label>Select User</ion-label>
     <ion-select [(ngModel)]="selectedUserId" (ionChange)="loadAssignmentsForSelectedUser()">
@@ -12,18 +25,58 @@
     </ion-select>
   </ion-item>
 
-  <div style="margin-top:12px">
-    <strong>{{ year }} - {{ month }}</strong>
-  </div>
-
   <div class="calendar-grid">
-    <div class="day-cell" *ngFor="let d of daysInMonth">
+    <div class="day-cell" *ngFor="let d of daysInMonth" (click)="openDay(d)">
       <div class="day-number">{{ d }}</div>
-      <ion-select interface="popover" [value]="getShiftForDay(d)" (ionChange)="changeShift(d, $event.detail.value)">
-        <ion-select-option value="morning">Morning</ion-select-option>
-        <ion-select-option value="night">Night</ion-select-option>
-        <ion-select-option value="off">Off</ion-select-option>
-      </ion-select>
+
+      <div class="counts">
+        <ion-chip size="small" class="count-chip">M {{ getCountsForDay(d).morning }}</ion-chip>
+        <ion-chip size="small" class="count-chip">N {{ getCountsForDay(d).night }}</ion-chip>
+        <ion-chip size="small" class="count-chip">Off {{ getCountsForDay(d).off }}</ion-chip>
+      </div>
+
+      <div class="selected-user-shift">
+        <small>Selected: {{ getShift(d) | uppercase }}</small>
+      </div>
     </div>
   </div>
+
+  <!-- Day modal/drawer -->
+  <ion-modal [isOpen]="modalOpen" (ionModalDidDismiss)="closeDay()" swipeToClose="true" presentingElement="body">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Assignments — {{ dayDateStr }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeDay()">Close</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div style="display:flex; gap:8px; margin-bottom:12px">
+        <ion-button size="small" color="primary" (click)="bulkAssignDay('morning')">All Morning</ion-button>
+        <ion-button size="small" color="dark" (click)="bulkAssignDay('night')">All Night</ion-button>
+        <ion-button size="small" color="medium" (click)="bulkAssignDay('off')">All Off</ion-button>
+      </div>
+
+      <ion-list>
+        <ion-item *ngFor="let da of dayAssignments">
+          <ion-avatar slot="start">
+            <div class="avatar">{{ da.user.fullName[0] }}</div>
+          </ion-avatar>
+          <ion-label>
+            <h3>{{ da.user.fullName }}</h3>
+            <p>{{ da.user.email || '' }}</p>
+          </ion-label>
+
+          <ion-select [value]="da.shift" (ionChange)="assignShiftForUserInDay(da.user.id, $event.detail.value)">
+            <ion-select-option value="morning">Morning</ion-select-option>
+            <ion-select-option value="night">Night</ion-select-option>
+            <ion-select-option value="off">Off</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-modal>
+
 </ion-content>

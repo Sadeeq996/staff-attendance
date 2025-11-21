@@ -1,18 +1,65 @@
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
+  gap: 10px;
   margin-top: 12px;
 }
 
 .day-cell {
-  background: #f8f9fb;
-  padding: 8px;
+  background: #fff;
   border-radius: 8px;
-  text-align: center;
+  padding: 8px;
+  min-height: 96px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  cursor: pointer;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
 }
 
 .day-number {
-  font-weight: 600;
-  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.counts {
+  display:flex;
+  gap:6px;
+  margin-top:6px;
+  flex-wrap:wrap;
+}
+
+.count-chip {
+  --background: #f1f1f1;
+  --padding-start: 6px;
+  --padding-end: 6px;
+  font-size: 12px;
+}
+
+.selected-user-shift {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ion-color-medium);
+}
+
+.toolbar-row {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.month-title {
+  font-weight:600;
+  margin-left:6px;
+}
+.avatar {
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#ddd;
+  color:#333;
+  font-weight:600;
 }

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { AttendanceService } from 'src/app/services/attendance.service';
 import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
+import { UserService } from 'src/app/services/user';
 @Component({
   selector: 'app-staff-list',
   templateUrl: './staff-list.page.html',
