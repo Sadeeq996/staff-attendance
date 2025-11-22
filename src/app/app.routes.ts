@@ -35,7 +35,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/admin/shift-planner/shift-planner.page').then(m => m.ShiftPlannerPage)
   },
   {
+    path: 'admin/users',
+    loadComponent: () => import('./pages/admin/users/admin-users.page').then(m => m.AdminUsersPage)
+  },
+  {
     path: 'admin-dashboard',
-    loadComponent: () => import('./pages/admin/admin-dashboard/admin-dashboard.page').then( m => m.AdminDashboardPage)
+    loadComponent: () => import('./pages/admin/admin-dashboard/admin-dashboard.page').then(m => m.AdminDashboardPage)
   },
 ];

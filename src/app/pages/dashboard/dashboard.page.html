@@ -28,6 +28,11 @@
   <p>Today's date: {{ today }}</p>
   <p>{{ displayDate }}</p>
 
+  <div *ngIf="loading" style="margin:8px 0; display:flex; align-items:center; gap:8px">
+    <ion-spinner name="crescent"></ion-spinner>
+    <div>Loading attendance…</div>
+  </div>
+
   <div *ngIf="assignedShift; else noShift">
     <ion-card>
       <ion-card-header>
@@ -37,9 +42,11 @@
         <h3>{{assignedShift | uppercase}}</h3>
         <p>Tap to record attendance</p>
 
-        <ion-button expand="block" (click)="clockIn()" [disabled]="clockInTime">Clock In</ion-button>
-        <ion-button expand="block" fill="outline" (click)="clockOut()" [disabled]="!clockInTime || clockOutTime">Clock
-          Out</ion-button>
+        <ion-button expand="block" (click)="clockIn()" [disabled]="loading || clockingIn || clockInTime">{{clockingIn ?
+          'Clocking In…' : 'Clock In'}}</ion-button>
+        <ion-button expand="block" fill="outline" (click)="clockOut()"
+          [disabled]="loading || clockingOut || !clockInTime || clockOutTime">{{clockingOut ? 'Clocking Out…' : 'Clock
+          Out'}}</ion-button>
 
         <div *ngIf="message" style="margin-top:12px">{{message}}</div>
         <div *ngIf="durationText" style="margin-top:8px; font-weight:bold">{{durationText}}</div>

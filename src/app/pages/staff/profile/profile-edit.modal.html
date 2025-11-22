@@ -1,0 +1,30 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>Edit Profile</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="dismiss()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <ion-item>
+        <ion-label position="stacked">Full name</ion-label>
+        <ion-input [(ngModel)]="form.fullName" placeholder="Full name"></ion-input>
+    </ion-item>
+
+    <ion-item>
+        <ion-label position="stacked">Email</ion-label>
+        <ion-input [(ngModel)]="form.email" type="email" placeholder="Email"></ion-input>
+    </ion-item>
+
+    <ion-item>
+        <ion-label position="stacked">Phone</ion-label>
+        <!-- <ion-input [(ngModel)]="form.phone" type="tel" placeholder="Phone"></ion-input> -->
+    </ion-item>
+
+    <div style="margin-top:16px">
+        <ion-button expand="block" (click)="save()" [disabled]="saving">Save</ion-button>
+        <ion-button expand="block" fill="outline" (click)="dismiss()" [disabled]="saving">Cancel</ion-button>
+    </div>
+</ion-content>

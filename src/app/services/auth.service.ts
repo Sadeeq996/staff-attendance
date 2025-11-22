@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { User } from '../models/user';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom, Observable, of } from 'rxjs';
+import { MockDataService } from './mock-data.service';
 
 
 @Injectable({
@@ -9,23 +13,47 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
 
-  constructor(private storage: StorageService, private router: Router) { }
+  private mockUsers: User[] = [];
+
+  constructor(
+    private storage: StorageService,
+    private router: Router,
+    private http: HttpClient,
+    private mockData: MockDataService
+  ) {
+    // initialize mock users from the central mock data service
+    this.mockUsers = this.mockData.getUsers();
+  }
 
   private readonly KEY = 'mock_auth_user';
 
-  // mock users
-  private mockUsers: User[] = [
-    { id: 1, email: 'staff@attendance.com', fullName: 'Alice Nurse', role: 'staff', hospitalId: 1 },
-    { id: 2, email: 'admin@attendance.com', fullName: 'Bob Admin', role: 'hospital_admin', hospitalId: 1 }
-  ];
 
 
   login(email: string, password: string): Promise<User> {
-    // fake auth: accept any password
+    if (!environment.useMock) {
+      // TODO: replace with real backend call when available
+      // Example implementation once backend exists:
+      // return firstValueFrom(this.http.post<User>('/api/auth/login', { email, password }));
+      return Promise.reject('Backend auth not implemented yet');
+    }
+
+    // mock auth: accept any password
     const user = this.mockUsers.find(u => u.email === email);
     if (!user) return Promise.reject('Invalid credentials');
     this.storage.set(this.KEY, user);
     return Promise.resolve(user);
+  }
+
+  // Observable version
+  login$(email: string, password: string): Observable<User> {
+    if (!environment.useMock) {
+      // TODO: call backend via HttpClient and return observable
+      return of(undefined as unknown as User);
+    }
+    const user = this.mockUsers.find(u => u.email === email);
+    if (!user) throw new Error('Invalid credentials');
+    this.storage.set(this.KEY, user);
+    return of(user);
   }
 
   logout() {
@@ -33,11 +61,24 @@ export class AuthService {
     this.router.navigateByUrl('/login');
   }
 
+  logout$(): Observable<void> {
+    this.logout();
+    return of(void 0);
+  }
+
   currentUser(): User | null {
     return this.storage.get(this.KEY);
   }
 
+  currentUser$(): Observable<User | null> {
+    return of(this.currentUser());
+  }
+
   isLoggedIn(): boolean {
     return !!this.currentUser();
+  }
+
+  isLoggedIn$(): Observable<boolean> {
+    return of(this.isLoggedIn());
   }
 }

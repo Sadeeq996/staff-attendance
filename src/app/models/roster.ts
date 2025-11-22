@@ -1,8 +1,3 @@
-// export interface Roster {
-//     date: string; // yyyy-mm-dd
-//     userId: number;
-//     shift: 'morning' | 'night';
-// }
 
 
 export interface Roster {
@@ -13,3 +8,111 @@ export interface Roster {
     shift: 'morning' | 'night' | 'off';
     manuallyAssigned: boolean; // true if admin changed it
 }
+
+
+
+export const roster: Roster[] = [
+    // USER 1 - hospital 1
+    {
+        id: 'a1f9b5c0-11a1-4a1e-bb11-001000000001',
+        userId: 1,
+        hospitalId: 1,
+        date: '2025-01-01',
+        shift: 'morning',
+        manuallyAssigned: false
+    },
+    {
+        id: 'a1f9b5c0-11a1-4a1e-bb11-001000000002',
+        userId: 1,
+        hospitalId: 1,
+        date: '2025-01-02',
+        shift: 'night',
+        manuallyAssigned: false
+    },
+    {
+        id: 'a1f9b5c0-11a1-4a1e-bb11-001000000003',
+        userId: 1,
+        hospitalId: 1,
+        date: '2025-01-03',
+        shift: 'off',
+        manuallyAssigned: true
+    },
+
+    // USER 2 - hospital 1
+    {
+        id: 'b2f9b5c0-22a2-4b2e-cc22-002000000001',
+        userId: 2,
+        hospitalId: 1,
+        date: '2025-01-01',
+        shift: 'off',
+        manuallyAssigned: false
+    },
+    {
+        id: 'b2f9b5c0-22a2-4b2e-cc22-002000000002',
+        userId: 2,
+        hospitalId: 1,
+        date: '2025-01-02',
+        shift: 'morning',
+        manuallyAssigned: false
+    },
+    {
+        id: 'b2f9b5c0-22a2-4b2e-cc22-002000000003',
+        userId: 2,
+        hospitalId: 1,
+        date: '2025-01-03',
+        shift: 'night',
+        manuallyAssigned: true
+    },
+
+    // USER 3 - hospital 2
+    {
+        id: 'c3f9b5c0-33a3-4c3e-dd33-003000000001',
+        userId: 3,
+        hospitalId: 2,
+        date: '2025-01-01',
+        shift: 'night',
+        manuallyAssigned: false
+    },
+    {
+        id: 'c3f9b5c0-33a3-4c3e-dd33-003000000002',
+        userId: 3,
+        hospitalId: 2,
+        date: '2025-01-02',
+        shift: 'night',
+        manuallyAssigned: false
+    },
+    {
+        id: 'c3f9b5c0-33a3-4c3e-dd33-003000000003',
+        userId: 3,
+        hospitalId: 2,
+        date: '2025-01-03',
+        shift: 'off',
+        manuallyAssigned: false
+    },
+
+    // USER 4 - hospital 2
+    {
+        id: 'd4f9b5c0-44a4-4d4e-ee44-004000000001',
+        userId: 4,
+        hospitalId: 2,
+        date: '2025-01-01',
+        shift: 'morning',
+        manuallyAssigned: true
+    },
+    {
+        id: 'd4f9b5c0-44a4-4d4e-ee44-004000000002',
+        userId: 4,
+        hospitalId: 2,
+        date: '2025-01-02',
+        shift: 'morning',
+        manuallyAssigned: false
+    },
+    {
+        id: 'd4f9b5c0-44a4-4d4e-ee44-004000000003',
+        userId: 4,
+        hospitalId: 2,
+        date: '2025-01-03',
+        shift: 'night',
+        manuallyAssigned: false
+    }
+];

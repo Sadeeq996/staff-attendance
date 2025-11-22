@@ -10,4 +10,11 @@
       <ion-title size="large">profile</ion-title>
     </ion-toolbar>
   </ion-header>
+  <div class="ion-padding">
+    <h2>{{ user?.fullName }}</h2>
+    <p>{{ user?.email }}</p>
+    <p *ngIf="user?.phone">{{ user.phone }}</p>
+
+    <ion-button (click)="openEditProfile()">Edit Profile</ion-button>
+  </div>
 </ion-content>

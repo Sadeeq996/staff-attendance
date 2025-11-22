@@ -5,45 +5,60 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { AttendanceService } from 'src/app/services/attendance.service';
 import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
-import { UserService } from 'src/app/services/user';
+import { MockDataService } from 'src/app/services/mock-data.service';
+import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-staff-list',
   templateUrl: './staff-list.page.html',
   styleUrls: ['./staff-list.page.scss'],
   standalone: true,
-  imports: [IonContent, IonTitle, IonToolbar, IonHeader, CommonModule, IonList, IonItem, IonLabel, IonButton, IonAvatar, IonIcon]
+  imports: [IonContent, IonTitle, IonToolbar, IonHeader, CommonModule, IonList, IonItem, IonLabel, IonButton]
 })
 export class StaffListPage implements OnInit {
   admin: any;
   users: any[] = [];
 
+  userShifts: Record<number, string> = {};
+  clockedInMap: Record<number, boolean> = {};
+
   today = '';
 
-  constructor(private auth: AuthService, private planner: ShiftPlannerService, private attendance: AttendanceService, private router: Router) { }
+  constructor(private auth: AuthService, private planner: ShiftPlannerService, private attendance: AttendanceService, private router: Router, private mockData: MockDataService) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.admin = this.auth.currentUser();
-    // replace with actual users source; using mock for now
-    this.users = [
-      { id: 1, fullName: 'Alice Nurse', email: 'staff@attendance.com', hospitalId: this.admin.hospitalId },
-      { id: 2, fullName: 'John Doe', email: 'john@attendance.com', hospitalId: this.admin.hospitalId }
-    ];
+    // load users from central mock data service filtered by admin's hospital
+    this.users = this.mockData.getUsers().filter(u => u.hospitalId === this.admin.hospitalId);
 
     const now = new Date();
     const yyyy = now.getFullYear();
     const mm = String(now.getMonth() + 1).padStart(2, '0');
     const dd = String(now.getDate()).padStart(2, '0');
     this.today = `${yyyy}-${mm}-${dd}`;
+
+    // Precompute shifts and clocked-in state for each user
+    await Promise.all(this.users.map(async (u) => {
+      try {
+        const a = await firstValueFrom(this.planner.getAssignmentFor$(u.id, u.hospitalId, this.today));
+        this.userShifts[u.id] = a ? a.shift : 'off';
+      } catch (e) {
+        this.userShifts[u.id] = 'off';
+      }
+      try {
+        const history = await firstValueFrom(this.attendance.getHistoryForUser$(u.id));
+        this.clockedInMap[u.id] = history.some((r: any) => r.status === 'IN' && r.timestamp.startsWith(this.today));
+      } catch (e) {
+        this.clockedInMap[u.id] = false;
+      }
+    }));
   }
 
   getShiftForUser(u: any) {
-    const a = this.planner.getAssignmentFor(u.id, u.hospitalId, this.today);
-    return a ? a.shift : 'off';
+    return this.userShifts[u.id] || 'off';
   }
 
   isClockedIn(u: any) {
-    const history = this.attendance.getHistoryForUser(u.id);
-    return history.some(r => r.status === 'IN' && r.timestamp.startsWith(this.today));
+    return !!this.clockedInMap[u.id];
   }
 
   goProfile(u: any) {

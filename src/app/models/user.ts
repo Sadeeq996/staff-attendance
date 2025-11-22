@@ -38,7 +38,7 @@ export const users: User[] = [
     // Staff / Employees for Hospital 1
     {
         id: 4,
-        email: 'staff1@hospital1.com',
+        email: 'staff@hospital1.com',
         fullName: 'Charlie Brown',
         role: 'staff',
         hospitalId: 101,
@@ -54,7 +54,7 @@ export const users: User[] = [
     // Staff / Employees for Hospital 2
     {
         id: 6,
-        email: 'staff1@hospital2.com',
+        email: 'staff@hospital2.com',
         fullName: 'Evan Davis',
         role: 'staff',
         hospitalId: 102,

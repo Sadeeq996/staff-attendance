@@ -9,6 +9,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { ShiftType } from 'src/app/models/shift-assignment';
 import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-shift-planner',
@@ -18,8 +19,7 @@ import { FormsModule } from '@angular/forms';
   imports: [IonButtons,
     IonToolbar, IonTitle, IonContent, IonHeader, CommonModule, FormsModule,
     IonItem, IonLabel, IonSelect, IonSelectOption, IonButton,
-    IonModal, IonList, IonAvatar, IonGrid, IonRow, IonCol, IonChip
-  ]
+    IonModal, IonList, IonAvatar, IonChip]
 })
 export class ShiftPlannerPage implements OnInit {
   admin: any;
@@ -38,12 +38,12 @@ export class ShiftPlannerPage implements OnInit {
 
   constructor(private planner: ShiftPlannerService, private auth: AuthService) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.admin = this.auth.currentUser();
     this.loadMockUsers();
     this.setMonthTo(new Date().getFullYear(), new Date().getMonth() + 1);
-    this.ensureMonthData();
-    this.loadAssignmentsForSelectedUser();
+    await firstValueFrom(this.ensureMonthData$());
+    await this.loadAssignmentsForSelectedUser();
   }
 
   loadMockUsers() {
@@ -77,9 +77,14 @@ export class ShiftPlannerPage implements OnInit {
     this.planner.generateDefaultMonthIfEmpty(this.admin.hospitalId!, userIds, this.year, this.month);
   }
 
-  loadAssignmentsForSelectedUser() {
+  ensureMonthData$() {
+    const userIds = this.users.map(u => u.id);
+    return this.planner.generateDefaultMonthIfEmpty$(this.admin.hospitalId!, userIds, this.year, this.month);
+  }
+
+  async loadAssignmentsForSelectedUser() {
     this.assignmentsMap.clear();
-    const items = this.planner.getMonthAssignments(this.admin.hospitalId!, this.year, this.month)
+    const items = (await firstValueFrom(this.planner.getMonthAssignments$(this.admin.hospitalId!, this.year, this.month)))
       .filter(a => a.userId === this.selectedUserId);
     items.forEach(a => this.assignmentsMap.set(a.date, a.shift));
   }
