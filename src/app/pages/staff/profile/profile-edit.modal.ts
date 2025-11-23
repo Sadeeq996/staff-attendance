@@ -1,8 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton, IonButtons } from '@ionic/angular/standalone';
-import { ModalController, ToastController } from '@ionic/angular';
+import { ModalController, ToastController, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton, IonButtons } from '@ionic/angular/standalone';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { AuditService } from 'src/app/services/audit.service';
