@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss'],
-  imports: [IonButton, IonInput, IonItem, IonLabel, FormsModule, CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, ExploreContainerComponent],
+  imports: [IonButton, IonInput, IonItem, IonLabel, FormsModule, CommonModule, IonHeader, IonToolbar, IonTitle, IonContent,],
 })
 export class Tab1Page {
   email = 'staff@attendance.com';
