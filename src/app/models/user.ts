@@ -14,7 +14,7 @@ export const users: User[] = [
     // General Admins
     {
         id: 1,
-        email: 'superadmin@example.com',
+        email: 'superadmin@attendance.com',
         fullName: 'Super Admin',
         role: 'general_admin',
     },
@@ -39,14 +39,14 @@ export const users: User[] = [
     {
         id: 4,
         email: 'staff@hospital1.com',
-        fullName: 'Charlie Brown',
+        fullName: 'Abu Sule',
         role: 'staff',
         hospitalId: 101,
     },
     {
         id: 5,
         email: 'staff2@hospital1.com',
-        fullName: 'Dana White',
+        fullName: 'Ali Manu',
         role: 'staff',
         hospitalId: 101,
     },
@@ -55,14 +55,14 @@ export const users: User[] = [
     {
         id: 6,
         email: 'staff@hospital2.com',
-        fullName: 'Evan Davis',
+        fullName: 'Bello Isah',
         role: 'staff',
         hospitalId: 102,
     },
     {
         id: 7,
         email: 'staff2@hospital2.com',
-        fullName: 'Fiona Green',
+        fullName: 'Binta Ado',
         role: 'staff',
         hospitalId: 102,
     },
@@ -71,14 +71,14 @@ export const users: User[] = [
     {
         id: 8,
         email: 'staff1@hospital3.com',
-        fullName: 'George Hall',
+        fullName: 'Sani Idi',
         role: 'staff',
         hospitalId: 103,
     },
     {
         id: 9,
         email: 'staff2@hospital3.com',
-        fullName: 'Hannah King',
+        fullName: 'Fati Ahmad',
         role: 'staff',
         hospitalId: 103,
     },

@@ -24,9 +24,12 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h2>Welcome, {{user?.fullName}}</h2>
-  <p>Today's date: {{ today }}</p>
-  <p>{{ displayDate }}</p>
+  <h2>Welcome, {{user.fullName}}</h2>
+  <!-- <p>Today's date: {{ today }}</p>
+  <p>{{ displayDate }}</p> -->
+
+  <app-clock></app-clock>
+  <app-clock-analog></app-clock-analog>
 
   <div *ngIf="loading" style="margin:8px 0; display:flex; align-items:center; gap:8px">
     <ion-spinner name="crescent"></ion-spinner>

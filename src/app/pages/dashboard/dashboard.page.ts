@@ -14,6 +14,8 @@ import { AuthService } from 'src/app/services/auth.service';
 import { ToastController } from '@ionic/angular';
 import { ShiftType } from 'src/app/models/shift-assignment';
 import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
+import { ClockComponent } from 'src/app/shared/clock/clock.component';
+import { ClockAnalogComponent } from 'src/app/shared/clock-analog/clock-analog.component';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -23,7 +25,7 @@ import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
     IonNote, IonCardHeader, IonCardContent, IonCard, IonCardTitle,
     IonSpinner,
     IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar,
-    CommonModule, FormsModule
+    CommonModule, FormsModule, ClockComponent, ClockAnalogComponent
   ]
 })
 export class DashboardPage implements OnInit {
@@ -52,6 +54,7 @@ export class DashboardPage implements OnInit {
   async ngOnInit() {
     this.loading = true;
     this.user = this.auth.currentUser();
+    console.log('user: ', this.user)
 
     const now = new Date();
     const yyyy = now.getFullYear();

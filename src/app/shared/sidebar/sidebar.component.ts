@@ -7,7 +7,7 @@ import { IonIcon, IonItem, IonLabel, MenuController, IonList, IonContent, IonTit
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
-  imports: [IonCard, IonAvatar, IonImg, IonToggle, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonIcon, IonMenu],
+  imports: [IonCard, IonToggle, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonLabel, IonItem, IonIcon, IonMenu],
 })
 export class SidebarComponent implements OnInit {
 
