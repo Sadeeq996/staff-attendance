@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   IonItem, IonLabel, IonSelect, IonSelectOption,
   IonButton, IonHeader, IonContent, IonTitle, IonToolbar,
-  IonModal, IonList, IonAvatar, IonGrid, IonRow, IonCol, IonChip, IonButtons
+  IonModal, IonList, IonAvatar, IonGrid, IonRow, IonCol, IonChip, IonButtons, IonNote
 } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/services/auth.service';
 import { ShiftType, ShiftAssignment } from 'src/app/models/shift-assignment';
@@ -12,13 +12,14 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { UserService } from 'src/app/services/user.service';
 import { User, users } from 'src/app/models/user';
+import { MockDataService } from 'src/app/services/mock-data.service';
 
 @Component({
   selector: 'app-shift-planner',
   templateUrl: './shift-planner.page.html',
   styleUrls: ['./shift-planner.page.scss'],
   standalone: true,
-  imports: [IonButtons,
+  imports: [IonNote, IonButtons,
     IonToolbar, IonTitle, IonContent, IonHeader, CommonModule, FormsModule,
     IonItem, IonLabel, IonSelect, IonSelectOption, IonButton,
     IonModal, IonList, IonAvatar, IonChip]
@@ -39,10 +40,14 @@ export class ShiftPlannerPage implements OnInit {
   dayDateStr = '';
   dayAssignments: { user: User; shift: ShiftType }[] = [];
 
-  constructor(private planner: ShiftPlannerService, private auth: AuthService, private userService: UserService) { }
+  constructor(private planner: ShiftPlannerService, private auth: AuthService, private userService: UserService, private mock: MockDataService) { }
 
   async ngOnInit() {
     this.admin = this.auth.currentUser();
+    console.log('admin: ', this.admin);
+    // this.users = this.mock.getUsers();
+    // console.log('all users from mock: ', this.users);
+
     await this.loadUsersFromService();
     this.setMonthTo(new Date().getFullYear(), new Date().getMonth() + 1);
     await firstValueFrom(this.ensureMonthData$());
@@ -52,9 +57,9 @@ export class ShiftPlannerPage implements OnInit {
   async loadUsersFromService() {
     // load users for this admin's hospital using the UserService
     try {
-      const users = await firstValueFrom(this.userService.getUsers$(this.admin.hospitalId));
-      if (users && users.length > 0) {
-        this.users = users;
+      this.users = await firstValueFrom(this.userService.getUsers$(this.admin.hospitalId));
+      if (this.users && this.users.length > 0) {
+        console.log('users: ', this.users)
         this.selectedUserId = this.users[0].id;
       } else {
         // fallback: empty list
@@ -136,7 +141,7 @@ export class ShiftPlannerPage implements OnInit {
     for (const a of prev) {
       await this.saveAssignmentSafe({
         userId: a.userId,
-        hospitalId: a.hospitalId,
+        hospitalId: a.hospitalId.toString(),
         date: `${this.year}-${String(this.month).padStart(2, '0')}-${a.date.slice(-2)}`,
         shift: a.shift
       });
@@ -146,19 +151,19 @@ export class ShiftPlannerPage implements OnInit {
 
   // --- Day modal / drawer handling (Option 3) ---
 
-  openDay(day: number) {
+  async openDay(day: number) {
     this.selectedDay = day;
     this.dayDateStr = `${this.year}-${String(this.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    // load assignments for that day for all users
-    (async () => {
-      const monthItems = await firstValueFrom(this.planner.getMonthAssignments$(this.admin.hospitalId!, this.year, this.month));
-      this.dayAssignments = this.users.map(u => {
-        const a = monthItems.find(it => it.userId === u.id && it.date === this.dayDateStr);
-        return { user: u, shift: a ? a.shift : 'off' as ShiftType };
-      });
-    })();
-    this.modalOpen = true;
+
+    const monthItems = await firstValueFrom(this.planner.getMonthAssignments$(this.admin.hospitalId!, this.year, this.month));
+    this.dayAssignments = this.users.map(u => {
+      const a = monthItems.find(it => it.userId === u.id && it.date === this.dayDateStr);
+      return { user: u, shift: a ? a.shift : 'off' as ShiftType };
+    });
+
+    this.modalOpen = true; // only open after dayAssignments is ready
   }
+
 
   closeDay() {
     this.modalOpen = false;
@@ -205,7 +210,7 @@ export class ShiftPlannerPage implements OnInit {
   /**
    * Save assignment using Observable-based API if available, otherwise call sync method.
    */
-  private async saveAssignmentSafe(a: { userId: number; hospitalId: number; date: string; shift: ShiftType; }) {
+  private async saveAssignmentSafe(a: { userId: number; hospitalId: string; date: string; shift: ShiftType; }) {
     if ((this.planner as any).saveAssignment$) {
       await firstValueFrom((this.planner as any).saveAssignment$(a));
     } else if ((this.planner as any).saveAssignment) {

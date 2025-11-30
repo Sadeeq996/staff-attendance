@@ -3,7 +3,7 @@ export interface User {
     email: string;
     fullName: string;
     role: 'staff' | 'hospital_admin' | 'general_admin';
-    hospitalId?: number;
+    hospitalId?: string;
 }
 
 
@@ -23,16 +23,16 @@ export const users: User[] = [
     {
         id: 2,
         email: 'admin1@hospital1.com',
-        fullName: 'Alice Johnson',
+        fullName: 'Admin H1',
         role: 'hospital_admin',
-        hospitalId: 101,
+        hospitalId: "hosp-101",
     },
     {
         id: 3,
         email: 'admin2@hospital2.com',
-        fullName: 'Bob Smith',
+        fullName: 'Admin H2',
         role: 'hospital_admin',
-        hospitalId: 102,
+        hospitalId: "hosp-102",
     },
 
     // Staff / Employees for Hospital 1
@@ -41,14 +41,14 @@ export const users: User[] = [
         email: 'staff@hospital1.com',
         fullName: 'Abu Sule',
         role: 'staff',
-        hospitalId: 101,
+        hospitalId: "hosp-101",
     },
     {
         id: 5,
         email: 'staff2@hospital1.com',
         fullName: 'Ali Manu',
         role: 'staff',
-        hospitalId: 101,
+        hospitalId: "hosp-101",
     },
 
     // Staff / Employees for Hospital 2
@@ -57,14 +57,14 @@ export const users: User[] = [
         email: 'staff@hospital2.com',
         fullName: 'Bello Isah',
         role: 'staff',
-        hospitalId: 102,
+        hospitalId: "hosp-102",
     },
     {
         id: 7,
         email: 'staff2@hospital2.com',
         fullName: 'Binta Ado',
         role: 'staff',
-        hospitalId: 102,
+        hospitalId: "hosp-102",
     },
 
     // Staff / Employees for Hospital 3 (no admin yet)
@@ -73,13 +73,13 @@ export const users: User[] = [
         email: 'staff1@hospital3.com',
         fullName: 'Sani Idi',
         role: 'staff',
-        hospitalId: 103,
+        hospitalId: "hosp-103",
     },
     {
         id: 9,
         email: 'staff2@hospital3.com',
         fullName: 'Fati Ahmad',
         role: 'staff',
-        hospitalId: 103,
+        hospitalId: "hosp-103",
     },
 ];

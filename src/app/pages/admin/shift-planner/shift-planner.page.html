@@ -59,23 +59,28 @@
         <ion-button size="small" color="medium" (click)="bulkAssignDay('off')">All Off</ion-button>
       </div>
 
-      <ion-list>
+      <ion-list *ngIf="dayAssignments && dayAssignments.length > 0; else noData">
         <ion-item *ngFor="let da of dayAssignments">
           <ion-avatar slot="start">
-            <div class="avatar">{{ da.user.fullName[0] }}</div>
+            <div class="avatar">{{ da.user?.fullName?.[0] }}</div>
           </ion-avatar>
           <ion-label>
-            <h3>{{ da.user.fullName }}</h3>
-            <p>{{ da.user.email || '' }}</p>
+            <h3>{{ da.user?.fullName }}</h3>
+            <p>{{ da.user?.email || '' }}</p>
           </ion-label>
 
-          <ion-select [value]="da.shift" (ionChange)="assignShiftForUserInDay(da.user.id, $event.detail.value)">
+          <ion-select [value]="da.shift" (ionChange)="assignShiftForUserInDay(da.user!.id, $event.detail.value)">
             <ion-select-option value="morning">Morning</ion-select-option>
             <ion-select-option value="night">Night</ion-select-option>
             <ion-select-option value="off">Off</ion-select-option>
           </ion-select>
         </ion-item>
       </ion-list>
+
+      <ng-template #noData>
+        <ion-note color="medium" class="ion-padding">No users or assignments for this day.</ion-note>
+      </ng-template>
+
     </ion-content>
   </ion-modal>
 

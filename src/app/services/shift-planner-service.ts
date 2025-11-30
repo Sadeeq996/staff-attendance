@@ -49,27 +49,27 @@ export class ShiftPlannerService {
   }
 
   /** Get assignments for a hospital and month (month: 1..12) */
-  getMonthAssignments(hospitalId: number, year: number, month: number): ShiftAssignment[] {
+  getMonthAssignments(hospitalId: string, year: number, month: number): ShiftAssignment[] {
     const prefix = `${year}-${String(month).padStart(2, '0')}`;
     return this.all().filter(a => a.hospitalId === hospitalId && a.date.startsWith(prefix));
   }
 
   /** Observable counterpart */
-  getMonthAssignments$(hospitalId: number, year: number, month: number): Observable<ShiftAssignment[]> {
+  getMonthAssignments$(hospitalId: string, year: number, month: number): Observable<ShiftAssignment[]> {
     return of(this.getMonthAssignments(hospitalId, year, month));
   }
 
   /** Get assignment for a single user/date */
-  getAssignmentFor(userId: number, hospitalId: number, date: string): ShiftAssignment | null {
+  getAssignmentFor(userId: number, hospitalId: string, date: string): ShiftAssignment | null {
     return this.all().find(a => a.userId === userId && a.hospitalId === hospitalId && a.date === date) || null;
   }
 
-  getAssignmentFor$(userId: number, hospitalId: number, date: string): Observable<ShiftAssignment | null> {
+  getAssignmentFor$(userId: number, hospitalId: string, date: string): Observable<ShiftAssignment | null> {
     return of(this.getAssignmentFor(userId, hospitalId, date));
   }
 
   /** Save or update a single assignment */
-  saveAssignment(assign: { userId: number; hospitalId: number; date: string; shift: ShiftType; manuallyAssigned?: boolean }) {
+  saveAssignment(assign: { userId: number; hospitalId: string; date: string; shift: ShiftType; manuallyAssigned?: boolean }) {
     if (!environment.useMock) {
       // TODO: call backend to save single assignment
       // e.g. this.http.post(`/api/assignments`, assign)
@@ -95,13 +95,13 @@ export class ShiftPlannerService {
     this.saveAll(arr);
   }
 
-  saveAssignment$(assign: { userId: number; hospitalId: number; date: string; shift: ShiftType; manuallyAssigned?: boolean }): Observable<void> {
+  saveAssignment$(assign: { userId: number; hospitalId: string; date: string; shift: ShiftType; manuallyAssigned?: boolean }): Observable<void> {
     this.saveAssignment(assign);
     return of(void 0);
   }
 
   /** Remove assignment (set to no record) */
-  removeAssignment(userId: number, hospitalId: number, date: string) {
+  removeAssignment(userId: number, hospitalId: string, date: string) {
     if (!environment.useMock) {
       // TODO: call backend to remove assignment
       // e.g. this.http.delete(`/api/assignments/${id}`)
@@ -110,7 +110,7 @@ export class ShiftPlannerService {
     this.saveAll(arr);
   }
 
-  removeAssignment$(userId: number, hospitalId: number, date: string): Observable<void> {
+  removeAssignment$(userId: number, hospitalId: string, date: string): Observable<void> {
     this.removeAssignment(userId, hospitalId, date);
     return of(void 0);
   }
@@ -121,7 +121,7 @@ export class ShiftPlannerService {
    * - rule: sample alternating pattern, can be replaced by admin later
    * Returns the created assignments.
    */
-  generateDefaultMonthIfEmpty(hospitalId: number, userIds: number[], year: number, month: number): ShiftAssignment[] {
+  generateDefaultMonthIfEmpty(hospitalId: string, userIds: number[], year: number, month: number): ShiftAssignment[] {
     const existing = this.getMonthAssignments(hospitalId, year, month);
     if (existing && existing.length > 0) return existing;
 
@@ -154,7 +154,7 @@ export class ShiftPlannerService {
     return out;
   }
 
-  generateDefaultMonthIfEmpty$(hospitalId: number, userIds: number[], year: number, month: number): Observable<ShiftAssignment[]> {
+  generateDefaultMonthIfEmpty$(hospitalId: string, userIds: number[], year: number, month: number): Observable<ShiftAssignment[]> {
     return of(this.generateDefaultMonthIfEmpty(hospitalId, userIds, year, month));
   }
 }

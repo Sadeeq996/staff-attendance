@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonHeader, IonTitle, IonToolbar,
   IonButtons, IonButton, IonCardTitle, IonCard,
-  IonCardContent, IonCardHeader, IonNote
+  IonCardContent, IonCardHeader, IonNote, IonProgressBar
 } from '@ionic/angular/standalone';
 import { IonSpinner } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
@@ -21,7 +21,7 @@ import { ClockAnalogComponent } from 'src/app/shared/clock-analog/clock-analog.c
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
-  imports: [
+  imports: [IonProgressBar,
     IonNote, IonCardHeader, IonCardContent, IonCard, IonCardTitle,
     IonSpinner,
     IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar,
@@ -43,6 +43,12 @@ export class DashboardPage implements OnInit {
   clockingIn = false;
   clockingOut = false;
 
+  //progressbar
+  workedHours = 0;
+  shiftTotalHours = 8; // 8-hour shift
+  progress = 0;
+  intervalId: any = null;
+
   constructor(
     private auth: AuthService,
     private planner: ShiftPlannerService,
@@ -56,17 +62,31 @@ export class DashboardPage implements OnInit {
     this.user = this.auth.currentUser();
     console.log('user: ', this.user)
 
+    // const now = new Date();
+    // const yyyy = now.getFullYear();
+    // const mm = String(now.getMonth() + 1).padStart(2, '0');
+    // const dd = String(now.getDate()).padStart(2, '0');
+    // this.today = `${yyyy}-${mm}-${dd}`;
+
     const now = new Date();
     const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    this.today = `${yyyy}-${mm}-${dd}`;
+    const mm = now.getMonth() + 1;
+    const dd = now.getDate();
+    this.today = `${yyyy}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+
+
+    await firstValueFrom(
+      this.planner.generateDefaultMonthIfEmpty$(this.user.hospitalId!, [this.user.id], yyyy, mm)
+    );
 
     // ensure data exists for current month for this hospital and user list
     // (if your system has API for users, replace with real user list)
     this.planner.generateDefaultMonthIfEmpty(this.user.hospitalId!, [this.user.id], yyyy, Number(mm));
+    console.log('this.user.id:', this.user.id, typeof this.user.id);
+    console.log('this.user.hospitalId:', this.user.hospitalId, typeof this.user.hospitalId);
 
     const assign = this.planner.getAssignmentFor(this.user.id, this.user.hospitalId!, this.today);
+    console.log('Today assignment:', assign);
     this.assignedShift = assign ? assign.shift : null;
 
     const options: Intl.DateTimeFormatOptions = {
@@ -192,5 +212,27 @@ export class DashboardPage implements OnInit {
 
   logout() {
     this.auth.logout();
+  }
+
+  startProgressTimer() {
+    if (!this.clockInTime) return;
+
+    if (this.intervalId) clearInterval(this.intervalId);
+
+    this.intervalId = setInterval(() => {
+      const now = new Date();
+      const diffMs = now.getTime() - this.clockInTime!.getTime();
+      const hours = diffMs / (1000 * 60 * 60); // convert ms → hours
+
+      this.workedHours = hours;
+      this.progress = Math.min(hours / this.shiftTotalHours, 1);
+    }, 1000); // update every second
+  }
+
+  stopProgressTimer() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
   }
 }

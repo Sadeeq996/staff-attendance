@@ -29,6 +29,7 @@ export class AdminDashboardPage implements OnInit {
   shiftCounts: { morning: number; night: number; off: number } = { morning: 0, night: 0, off: 0 };
   today = '';
   hospitals: any[] = [];
+  todayUsers: any;
 
   constructor(
     private auth: AuthService,
@@ -83,6 +84,15 @@ export class AdminDashboardPage implements OnInit {
     const todaysIn = allRecords.filter((r: any) => r.hospitalId === this.admin.hospitalId && r.status === 'IN' && r.timestamp.startsWith(this.today));
     const uniqueClockedIn = new Set(todaysIn.map((r: any) => r.userId));
     this.clockedInCount = uniqueClockedIn.size;
+
+
+    //testing clocked in users for the day
+    const clockedUsers = todaysIn.find((id) => id.userId);
+    const clockedUserId = clockedUsers?.userId;
+    this.todayUsers = this.mockData.getUserById(clockedUserId);
+    console.log('today attendance: ', clockedUsers);
+    console.log('today users: ', this.todayUsers);
+
 
     // shift distribution
     const monthNum = Number(mm);

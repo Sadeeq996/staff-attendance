@@ -16,6 +16,10 @@ export class MockDataService {
         return [...this._users];
     }
 
+    getUserById(id: any): User | undefined {
+        return this._users.find(u => u.id === id)
+    }
+
     findUserByEmail(email: string): User | undefined {
         return this._users.find(u => u.email === email);
     }

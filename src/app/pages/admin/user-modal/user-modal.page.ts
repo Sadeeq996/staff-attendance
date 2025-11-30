@@ -20,12 +20,13 @@ export class UserModalPage {
     model: Partial<User> = {};
     hospitals: any[] = [];
 
-    constructor(private modalCtrl: ModalController) { }
+    constructor(private modalCtrl: ModalController, private mock: MockDataService) { }
 
     ngOnInit() {
         if (this.user) this.model = { ...this.user };
-        const mock = inject(MockDataService);
-        this.hospitals = mock.getHospitals();
+
+        this.hospitals = this.mock.getHospitals();
+        console.log('hospitals in mock: ', this.hospitals);
     }
 
     save() {

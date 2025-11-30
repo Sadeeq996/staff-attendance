@@ -20,7 +20,7 @@ export class AdminUsersPage {
     users: User[] = [];
     filtered: User[] = [];
     roleFilter: '' | User['role'] | 'all' = '';
-    hospitalFilter: number | '' = '';
+    hospitalFilter: string | '' = '';
     hospitals: any[] = [];
 
     private userService = inject(UserService);
@@ -31,6 +31,7 @@ export class AdminUsersPage {
 
     constructor() {
         this.hospitals = this.mock.getHospitals();
+        console.log('hospitals', this.hospitals)
         this.refresh();
     }
 
@@ -45,7 +46,9 @@ export class AdminUsersPage {
             arr = arr.filter(u => u.role === this.roleFilter);
         }
         if (this.hospitalFilter) {
-            arr = arr.filter(u => u.hospitalId === Number(this.hospitalFilter));
+            console.log('hospital filter applied');
+            arr = arr.filter(u => u.hospitalId === (this.hospitalFilter));
+            console.log('hosp users: ', arr)
         }
         this.filtered = arr;
     }

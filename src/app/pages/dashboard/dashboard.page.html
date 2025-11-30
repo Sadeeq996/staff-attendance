@@ -31,6 +31,19 @@
   <app-clock></app-clock>
   <app-clock-analog></app-clock-analog>
 
+  <div class="work-progress-container" *ngIf="clockInTime && !clockOutTime" style="margin-top: 16px">
+    <!-- <div class="work-progress-container" style="margin-top: 16px"> -->
+
+    <div class="hours-worked">
+      <span><b>Hours Worked:</b> {{ workedHours | number:'1.1-1' }}h</span>
+      <span>{{ (progress * 100) | number:'1.0-0' }}%</span>
+    </div>
+
+    <ion-progress-bar [value]="progress"></ion-progress-bar>
+
+    <small>Shift Target: {{ shiftTotalHours }} hours</small>
+  </div>
+
   <div *ngIf="loading" style="margin:8px 0; display:flex; align-items:center; gap:8px">
     <ion-spinner name="crescent"></ion-spinner>
     <div>Loading attendance…</div>

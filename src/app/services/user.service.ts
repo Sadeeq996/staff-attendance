@@ -46,7 +46,7 @@ export class UserService {
      * Async-friendly accessor used by pages that `await` users.
      * When `hospitalId` is provided, returns users for that hospital.
      */
-    getUsers$(hospitalId?: number): Observable<User[]> {
+    getUsers$(hospitalId?: string): Observable<User[]> {
         if (!environment.useMock) {
             // TODO: call ApiService.getUsers({hospitalId})
             return of([]);
