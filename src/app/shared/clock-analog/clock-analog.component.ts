@@ -23,6 +23,7 @@ export class ClockAnalogComponent implements OnInit, OnDestroy {
     this.subscription = interval(1000).subscribe(() => {
       this.updateClock();
     });
+    // this.genNumber();
   }
 
   updateClock() {
@@ -45,4 +46,36 @@ export class ClockAnalogComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.subscription) this.subscription.unsubscribe();
   }
+
+  hour_hand = document.getElementById("hour_hand");
+  min_hand = document.getElementById("min_hand");
+  sec_hand = document.getElementById("sec_hand");
+  segments = document.getElementById("segments");
+  num_rotation = 0;
+  seg_rotation = 0;
+
+  // genNumber() {
+  //   console.log('generating')
+  //   for (let index = 0; index <= 60; index++) {
+  //     //const element = array[index];
+  //     const segment = document.createElement('div');
+  //     const mark = document.createElement('div');
+  //     segment.classList.add('segment');
+  //     segment.style.transform = `rotate(${this.seg_rotation += 6}deg) translate(-50%, -100%)`;
+  //     mark.classList.add('mark');
+  //     if (index % 5 === 0) {
+  //       const num = document.createElement('span');
+  //       num.innerText = String(index / 5);
+  //       num.classList.add('num');
+  //       num.style.transform = `translateX(-50%) rotate(-${this.num_rotation += 30}deg)`;
+  //       mark.classList.add('mark-hour');
+  //       segment.appendChild(mark);
+  //       segment.appendChild(num);
+  //     }
+  //   }
+
+  // }
+
+
+
 }

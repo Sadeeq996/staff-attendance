@@ -23,6 +23,15 @@
   </ion-toolbar>
 </ion-header> -->
 
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Attendance History</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="backToDashboard()">Back</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content class="ion-padding">
   <ion-list>
     <ion-item *ngFor="let r of records">
@@ -40,14 +49,7 @@
 
 
 
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Attendance History</ion-title>
-    <ion-buttons slot="start">
-      <ion-button (click)="backToDashboard()">Back</ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+
 
 <ion-content class="ion-padding">
   <h2>{{ user?.fullName }}'s Attendance</h2>

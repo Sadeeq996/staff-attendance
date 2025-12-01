@@ -1,6 +1,6 @@
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 10px;
   margin-top: 12px;
 }
@@ -20,6 +20,7 @@
 .day-number {
   font-weight: 700;
   font-size: 14px;
+      color: black;
 }
 
 .counts {
@@ -40,7 +41,8 @@
 .selected-user-shift {
   margin-top: 8px;
   font-size: 12px;
-  color: var(--ion-color-medium);
+  // color: var(--ion-color-medium);
+  color: black ;
 }
 
 .toolbar-row {

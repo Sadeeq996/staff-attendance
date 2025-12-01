@@ -1,6 +1,9 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Shift Planner</ion-title>
+    <ion-buttons slot="end">
+      <ion-button href="/admin-dashboard">Back</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -14,6 +17,10 @@
     <div style="flex:1"></div>
 
     <ion-button color="medium" (click)="copyPreviousMonth()">Copy Prev Month</ion-button>
+    <!-- <ion-button color="tertiary" (click)="bulkAssign('off')">Set All Off (Selected User)</ion-button>
+    <ion-button color="primary" (click)="bulkAssign('morning')">Set All Morning (Selected User)</ion-button> -->
+  </div>
+  <div class="toolbar-row">
     <ion-button color="tertiary" (click)="bulkAssign('off')">Set All Off (Selected User)</ion-button>
     <ion-button color="primary" (click)="bulkAssign('morning')">Set All Morning (Selected User)</ion-button>
   </div>
