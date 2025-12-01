@@ -1,13 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  IonContent, IonHeader, IonTitle, IonToolbar,
-  IonButtons, IonButton, IonCardTitle, IonCard,
-  IonCardContent, IonCardHeader, IonNote, IonProgressBar
-} from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonCardTitle, IonCard, IonCardContent, IonCardHeader, IonNote, IonProgressBar, IonBackButton, IonMenuButton } from '@ionic/angular/standalone';
 import { IonSpinner } from '@ionic/angular/standalone';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { AttendanceService } from 'src/app/services/attendance.service';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
@@ -16,6 +12,7 @@ import { ShiftType } from 'src/app/models/shift-assignment';
 import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
 import { ClockComponent } from 'src/app/shared/clock/clock.component';
 import { ClockAnalogComponent } from 'src/app/shared/clock-analog/clock-analog.component';
+import { SidebarComponent } from "src/app/shared/sidebar/sidebar.component";
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -25,8 +22,7 @@ import { ClockAnalogComponent } from 'src/app/shared/clock-analog/clock-analog.c
     IonNote, IonCardHeader, IonCardContent, IonCard, IonCardTitle,
     IonSpinner,
     IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar,
-    CommonModule, FormsModule, ClockComponent, ClockAnalogComponent
-  ]
+    CommonModule, FormsModule, ClockComponent, ClockAnalogComponent, SidebarComponent, IonMenuButton, RouterOutlet]
 })
 export class DashboardPage implements OnInit {
 
