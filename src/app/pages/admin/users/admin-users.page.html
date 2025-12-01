@@ -35,4 +35,36 @@
             </ion-buttons>
         </ion-item>
     </ion-list>
+    <ion-content class="ion-padding">
+        <table class="ionic-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>Hospital</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let u of filtered">
+                    <td>{{ u.fullName }}</td>
+                    <td>{{ u.role }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.hospitalId }}</td>
+                    <td>
+                        <ion-buttons slot="end">
+                            <ion-button color="warning" (click)="openEdit(u)">Edit</ion-button>
+                            <ion-button color="danger" (click)="deleteUser(u)">Delete</ion-button>
+                        </ion-buttons>
+                        <!-- <ion-badge [color]="getStatusColor(order.status)">
+                            {{ order.status }}
+                        </ion-badge> -->
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </ion-content>
+
+
 </ion-content>

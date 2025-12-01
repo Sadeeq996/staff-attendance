@@ -14,6 +14,7 @@ import { UserService } from 'src/app/services/user.service';
 import { HospitalModalPage } from '../hospital-modal/hospital-modal.page';
 import { SidebarComponent } from "src/app/shared/sidebar/sidebar.component";
 import { RouterOutlet } from "@angular/router";
+import { HospitalService } from 'src/app/services/hospital.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -26,6 +27,7 @@ export class AdminDashboardPage implements OnInit {
   admin: any;
   totalStaff = 0;
   clockedInCount = 0;
+  totalHospitals = 0;
   shiftCounts: { morning: number; night: number; off: number } = { morning: 0, night: 0, off: 0 };
   today = '';
   hospitals: any[] = [];
@@ -40,7 +42,8 @@ export class AdminDashboardPage implements OnInit {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
     private userService: UserService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private hospitalService: HospitalService,
   ) { }
 
   async ngOnInit() {
@@ -85,6 +88,9 @@ export class AdminDashboardPage implements OnInit {
     const uniqueClockedIn = new Set(todaysIn.map((r: any) => r.userId));
     this.clockedInCount = uniqueClockedIn.size;
 
+    const tHospitals = new Set(this.hospitals.map((h: Hospital) => h.id));
+    this.totalHospitals = tHospitals.size;
+    console.log('total Hospitals', this.totalHospitals);
 
     //testing clocked in users for the day
     const clockedUsers = todaysIn.find((id) => id.userId);
@@ -92,6 +98,9 @@ export class AdminDashboardPage implements OnInit {
     this.todayUsers = this.mockData.getUserById(clockedUserId);
     console.log('today attendance: ', clockedUsers);
     console.log('today users: ', this.todayUsers);
+
+    const totalHospitals = this.mockData.getTotalHospitals(this.hospitals);
+    console.log('total Hospitals 2:', totalHospitals);
 
 
     // shift distribution

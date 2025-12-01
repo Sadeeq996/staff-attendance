@@ -29,6 +29,10 @@ export class MockDataService {
         return [...this._hospitals];
     }
 
+    getTotalHospitals<Hospital>(items: Hospital[]): number {
+        return items.length;
+    }
+
     getHospitalById(id: number | string): Hospital | undefined {
         // models may use numeric or string ids; compare loosely.
         // Support numeric hospitalId like `101` matching `hosp-101`.

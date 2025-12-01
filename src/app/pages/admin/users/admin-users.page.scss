@@ -6,3 +6,26 @@
 ion-item ion-select {
   width: 200px;
 }
+
+
+
+.ionic-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+
+  th, td {
+    text-align: left;
+    padding: 12px 8px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  th {
+    background-color: var(--ion-color-primary);
+    color: white;
+  }
+
+  tr:hover {
+    background-color: rgba(0,0,0,0.05);
+  }
+}
