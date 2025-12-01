@@ -62,11 +62,11 @@
       <ion-list *ngIf="dayAssignments && dayAssignments.length > 0; else noData">
         <ion-item *ngFor="let da of dayAssignments">
           <ion-avatar slot="start">
-            <div class="avatar">{{ da.user?.fullName?.[0] }}</div>
+            <div class="avatar">{{ da.user.fullName[0] }}</div>
           </ion-avatar>
           <ion-label>
-            <h3>{{ da.user?.fullName }}</h3>
-            <p>{{ da.user?.email || '' }}</p>
+            <h3>{{ da.user.fullName }}</h3>
+            <p>{{ da.user.email || '' }}</p>
           </ion-label>
 
           <ion-select [value]="da.shift" (ionChange)="assignShiftForUserInDay(da.user!.id, $event.detail.value)">
