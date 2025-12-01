@@ -1,0 +1,38 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>Admin — Users</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="openCreate()">Create</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <ion-item>
+        <ion-label>Role</ion-label>
+        <ion-select [(ngModel)]="roleFilter" (ionChange)="applyFilters()">
+            <ion-select-option value="">All</ion-select-option>
+            <ion-select-option value="general_admin">General Admin</ion-select-option>
+            <ion-select-option value="hospital_admin">Hospital Admin</ion-select-option>
+            <ion-select-option value="staff">Staff</ion-select-option>
+        </ion-select>
+        <ion-label style="margin-left:12px">Hospital</ion-label>
+        <ion-select [(ngModel)]="hospitalFilter" (ionChange)="applyFilters()">
+            <ion-select-option value="">All</ion-select-option>
+            <ion-select-option *ngFor="let h of hospitals" [value]="h.id">{{h.name}}</ion-select-option>
+        </ion-select>
+    </ion-item>
+
+    <ion-list>
+        <ion-item *ngFor="let u of filtered">
+            <ion-label>
+                <h3>{{u.fullName}}</h3>
+                <p>{{u.email}} — {{u.role}}{{u.hospitalId ? (' — ' + u.hospitalId) : ''}}</p>
+            </ion-label>
+            <ion-buttons slot="end">
+                <ion-button (click)="openEdit(u)">Edit</ion-button>
+                <ion-button color="danger" (click)="deleteUser(u)">Delete</ion-button>
+            </ion-buttons>
+        </ion-item>
+    </ion-list>
+</ion-content>

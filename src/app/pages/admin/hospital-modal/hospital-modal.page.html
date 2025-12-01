@@ -1,0 +1,29 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>{{ hospital ? 'Edit Hospital' : 'Create Hospital' }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="cancel()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <ion-item>
+        <ion-label position="stacked">Name</ion-label>
+        <ion-input [(ngModel)]="name" placeholder="Hospital name"></ion-input>
+    </ion-item>
+
+    <ion-item>
+        <ion-label position="stacked">Contact</ion-label>
+        <ion-input [(ngModel)]="contact" placeholder="Contact phone"></ion-input>
+    </ion-item>
+
+    <ion-item>
+        <ion-label position="stacked">Address</ion-label>
+        <ion-input [(ngModel)]="address" placeholder="Address (optional)"></ion-input>
+    </ion-item>
+
+    <ion-footer class="ion-padding">
+        <ion-button expand="block" color="primary" (click)="save()">Save</ion-button>
+    </ion-footer>
+</ion-content>

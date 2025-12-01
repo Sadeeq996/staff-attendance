@@ -1,0 +1,8 @@
+/* Minimal styling for admin users */
+:host {
+  display: block;
+}
+
+ion-item ion-select {
+  width: 200px;
+}

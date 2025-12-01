@@ -3,7 +3,13 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  // When true the app uses in-memory / localStorage mock data.
+  // Set to false to enable real backend HttpClient calls (implement endpoints in services).
+  useMock: true
+  ,
+  // Optional backend base URL. When empty, relative URLs are used.
+  apiBaseUrl: ''
 };
 
 /*

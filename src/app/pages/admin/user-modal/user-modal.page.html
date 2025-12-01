@@ -1,0 +1,36 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>{{ mode === 'create' ? 'Create User' : 'Edit User' }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="cancel()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <ion-item>
+        <ion-label position="stacked">Full name</ion-label>
+        <ion-input [(ngModel)]="model.fullName" placeholder="Full name"></ion-input>
+    </ion-item>
+    <ion-item>
+        <ion-label position="stacked">Email</ion-label>
+        <ion-input [(ngModel)]="model.email" placeholder="email@example.com"></ion-input>
+    </ion-item>
+    <ion-item>
+        <ion-label>Role</ion-label>
+        <ion-select [(ngModel)]="model.role">
+            <ion-select-option value="general_admin">General Admin</ion-select-option>
+            <ion-select-option value="hospital_admin">Hospital Admin</ion-select-option>
+            <ion-select-option value="staff">Staff</ion-select-option>
+        </ion-select>
+    </ion-item>
+
+    <ion-item *ngIf="model.role === 'hospital_admin' || model.role === 'staff'">
+        <ion-label>Hospital</ion-label>
+        <ion-select [(ngModel)]="model.hospitalId">
+            <ion-select-option *ngFor="let h of hospitals" [value]="h.id">{{h.name}}</ion-select-option>
+        </ion-select>
+    </ion-item>
+
+    <ion-button expand="block" (click)="save()">Save</ion-button>
+</ion-content>
