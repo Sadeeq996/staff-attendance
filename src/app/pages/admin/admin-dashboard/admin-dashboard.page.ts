@@ -10,6 +10,8 @@ import { environment } from 'src/environments/environment';
 import { Hospital } from 'src/app/models/hospital';
 import { AlertController, ToastController, ModalController } from '@ionic/angular/standalone';
 import { firstValueFrom } from 'rxjs';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartData, ChartOptions } from 'chart.js';
 import { UserService } from 'src/app/services/user.service';
 import { HospitalModalPage } from '../hospital-modal/hospital-modal.page';
 import { SidebarComponent } from "src/app/shared/sidebar/sidebar.component";
@@ -21,7 +23,7 @@ import { HospitalService } from 'src/app/services/hospital.service';
   templateUrl: './admin-dashboard.page.html',
   styleUrls: ['./admin-dashboard.page.scss'],
   standalone: true,
-  imports: [IonBackButton, IonButtons, IonContent, IonTitle, IonToolbar, IonHeader, CommonModule, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonGrid, IonRow, IonCol, IonList, IonItem, IonLabel, SidebarComponent, RouterOutlet, IonMenuButton]
+  imports: [BaseChartDirective, IonBackButton, IonButtons, IonContent, IonTitle, IonToolbar, IonHeader, CommonModule, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonGrid, IonRow, IonCol, IonList, IonItem, IonLabel, SidebarComponent, RouterOutlet, IonMenuButton,]
 })
 export class AdminDashboardPage implements OnInit {
   admin: any;
@@ -32,6 +34,8 @@ export class AdminDashboardPage implements OnInit {
   today = '';
   hospitals: any[] = [];
   todayUsers: any;
+  doughnutData: ChartData<'doughnut'> | undefined;
+  doughnutOptions: ChartOptions<'doughnut'> | undefined;
 
   constructor(
     private auth: AuthService,
@@ -113,6 +117,25 @@ export class AdminDashboardPage implements OnInit {
       else if (a.shift === 'night') this.shiftCounts.night++;
       else this.shiftCounts.off++;
     });
+
+    // prepare chart data for ng2-charts
+    this.doughnutData = {
+      labels: ['Morning', 'Night', 'Off'],
+      datasets: [
+        {
+          data: [this.shiftCounts.morning, this.shiftCounts.night, this.shiftCounts.off],
+          backgroundColor: ['#3b82f6', '#111827', '#d1d5db'],
+          borderColor: ['#2563eb', '#000', '#9ca3af'],
+          borderWidth: 1
+        }
+      ]
+    };
+
+    this.doughnutOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } }
+    };
   }
 
   getUsersForHospital(hospitalId: number) {

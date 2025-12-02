@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './clocked-records.page.html',
     styleUrls: ['./clocked-records.page.scss'],
     standalone: true,
-    imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonNote, IonDatetime, IonButton, CommonModule, FormsModule]
+    imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonNote, IonDatetime, CommonModule, FormsModule]
 })
 export class ClockedRecordsPage implements OnInit {
     period: 'daily' | 'weekly' | 'monthly' = 'daily';

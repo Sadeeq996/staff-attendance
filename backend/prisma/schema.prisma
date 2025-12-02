@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+}
+
+model User {
+    id         String   @id @default(cuid())
+    email      String   @unique
+    fullName   String
+    password   String
+    role       Role     @default(STAFF)
+    hospitalId String
+    hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+    // Relations
+    attendanceRecords AttendanceRecord[]
+    shiftAssignments  ShiftAssignment[]
+    createdAt         DateTime           @default(now())
+    updatedAt         DateTime           @updatedAt
+
+    @@index([hospitalId])
+    @@map("users")
+}
+
+enum Role {
+    ADMIN
+    MANAGER
+    STAFF
+}
+
+model Hospital {
+    id      String  @id @default(cuid())
+    name    String  @unique
+    address String?
+    phone   String?
+    email   String?
+
+    // Relations
+    users     User[]
+    shifts    Shift[]
+    rosters   Roster[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("hospitals")
+}
+
+model Shift {
+    id         String   @id @default(cuid())
+    name       String // "Morning", "Night", "Off"
+    startTime  String // "06:00"
+    endTime    String // "14:00"
+    hospitalId String
+    hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+    // Relations
+    assignments ShiftAssignment[]
+    rosters     Roster[]
+    createdAt   DateTime          @default(now())
+    updatedAt   DateTime          @updatedAt
+
+    @@index([hospitalId])
+    @@map("shifts")
+}
+
+model Roster {
+    id         String   @id @default(cuid())
+    name       String // "Weekly", "Monthly"
+    startDate  DateTime
+    endDate    DateTime
+    hospitalId String
+    hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+    shiftId    String
+    shift      Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+
+    // Relations
+    assignments ShiftAssignment[]
+    createdAt   DateTime          @default(now())
+    updatedAt   DateTime          @updatedAt
+
+    @@index([hospitalId])
+    @@index([shiftId])
+    @@map("rosters")
+}
+
+model ShiftAssignment {
+    id           String   @id @default(cuid())
+    userId       String
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    shiftId      String
+    shift        Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+    rosterId     String
+    roster       Roster   @relation(fields: [rosterId], references: [id], onDelete: Cascade)
+    assignedDate DateTime
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([userId, assignedDate, shiftId])
+    @@index([userId])
+    @@index([shiftId])
+    @@index([rosterId])
+    @@map("shift_assignments")
+}
+
+model AttendanceRecord {
+    id           String           @id @default(cuid())
+    userId       String
+    user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    clockInTime  DateTime
+    clockOutTime DateTime?
+    date         DateTime
+    status       AttendanceStatus @default(PRESENT)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([userId])
+    @@index([date])
+    @@map("attendance_records")
+}
+
+enum AttendanceStatus {
+    PRESENT
+    ABSENT
+    LATE
+    EARLY_LEAVE
+    ON_LEAVE
+}

@@ -81,6 +81,10 @@
         <ion-card-title>Hospitals</ion-card-title>
       </ion-card-header>
       <ion-card-content>
+        <!-- Admin summary chart -->
+        <div style="margin-bottom:16px; height: 200px;">
+          <canvas baseChart [data]="doughnutData" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+        </div>
         <ion-button expand="block" (click)="createHospital()">Create Hospital</ion-button>
         <ion-list>
           <ion-item *ngFor="let h of hospitals">
