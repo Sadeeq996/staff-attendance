@@ -36,6 +36,12 @@ export class AdminDashboardPage implements OnInit {
   todayUsers: any;
   doughnutData: ChartData<'doughnut'> | undefined;
   doughnutOptions: ChartOptions<'doughnut'> | undefined;
+  clockedInChartData: ChartData<'doughnut'> | undefined;
+  clockedInChartOptions: ChartOptions<'doughnut'> | undefined;
+  staffPerHospitalData: ChartData<'bar'> | undefined;
+  staffPerHospitalOptions: ChartOptions<'bar'> | undefined;
+  attendanceTrendData: ChartData<'line'> | undefined;
+  attendanceTrendOptions: ChartOptions<'line'> | undefined;
 
   constructor(
     private auth: AuthService,
@@ -92,6 +98,30 @@ export class AdminDashboardPage implements OnInit {
     const uniqueClockedIn = new Set(todaysIn.map((r: any) => r.userId));
     this.clockedInCount = uniqueClockedIn.size;
 
+    //Doughnut chart for clocked-in vs not-clocked-in
+    const notClockedIn = this.totalStaff - this.clockedInCount;
+
+    this.clockedInChartData = {
+      labels: ['Clocked In', 'Not Clocked In'],
+      datasets: [
+        {
+          data: [this.clockedInCount, notClockedIn],
+          backgroundColor: ['#10b981', '#ef4444'], // green/red
+          borderColor: ['#065f46', '#b91c1c'],
+          borderWidth: 1
+        }
+      ]
+    };
+
+    this.clockedInChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } }
+    };
+
+
+
+
     const tHospitals = new Set(this.hospitals.map((h: Hospital) => h.id));
     this.totalHospitals = tHospitals.size;
     console.log('total Hospitals', this.totalHospitals);
@@ -136,6 +166,60 @@ export class AdminDashboardPage implements OnInit {
       maintainAspectRatio: false,
       plugins: { legend: { position: 'bottom' } }
     };
+
+    const hospitalNames = this.hospitals.map(h => h.name);
+    const staffCounts = this.hospitals.map(h => this.getUsersForHospital(h.id).length);
+
+    this.staffPerHospitalData = {
+      labels: hospitalNames,
+      datasets: [
+        {
+          label: 'Staff Count',
+          data: staffCounts,
+          backgroundColor: '#3b82f6',
+          borderColor: '#2563eb',
+          borderWidth: 1
+        }
+      ]
+    };
+
+    this.staffPerHospitalOptions = {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    };
+
+
+    const last7Days = Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    });
+
+    const dailyCounts = last7Days.map(day => {
+      const todays = allRecords.filter(r => r.hospitalId === this.admin.hospitalId && r.timestamp.startsWith(day) && r.status === 'IN');
+      return new Set(todays.map(r => r.userId)).size;
+    });
+
+    this.attendanceTrendData = {
+      labels: last7Days,
+      datasets: [
+        {
+          label: 'Clocked In Users',
+          data: dailyCounts,
+          fill: false,
+          borderColor: '#3b82f6',
+          tension: 0.1
+        }
+      ]
+    };
+
+    this.attendanceTrendOptions = {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
+    };
+
+
   }
 
   getUsersForHospital(hospitalId: number) {

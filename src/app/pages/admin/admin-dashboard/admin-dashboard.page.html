@@ -67,6 +67,21 @@
     </ion-row>
   </ion-grid>
 
+  <div style="height: 200px; margin-bottom: 16px;">
+    <canvas baseChart [data]="clockedInChartData" [options]="clockedInChartOptions" [type]="'doughnut'"></canvas>
+  </div>
+
+
+  <div style="height: 250px; margin-bottom: 16px;">
+    <canvas baseChart [data]="staffPerHospitalData" [options]="staffPerHospitalOptions" [type]="'bar'"></canvas>
+  </div>
+
+
+  <div style="height: 250px; margin-bottom: 16px;">
+    <canvas baseChart [data]="attendanceTrendData" [options]="attendanceTrendOptions" [type]="'line'"></canvas>
+  </div>
+
+
   <div style="margin-top:16px">
     <ion-button expand="block" href="/shift-planner">Open Shift Planner</ion-button>
     <ion-button expand="block" color="tertiary" href="/staff-list">Staff List</ion-button>
