@@ -1,0 +1,68 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="/dashboard"></ion-back-button>
+        </ion-buttons>
+        <ion-title>My Shift Assignments</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <div *ngIf="loading" style="display:flex; align-items:center; gap:8px; justify-content:center; padding:24px;">
+        <ion-spinner name="crescent"></ion-spinner>
+        <div>Loading shifts…</div>
+    </div>
+
+    <div *ngIf="!loading">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+            <ion-button size="small" (click)="prevMonth()">← Prev</ion-button>
+            <h2 style="margin: 0; flex: 1; text-align: center;">{{ monthName }} {{ year }}</h2>
+            <ion-button size="small" (click)="nextMonth()">Next →</ion-button>
+        </div>
+
+        <ion-note *ngIf="assignments.length === 0">No assignments for this month.</ion-note>
+
+        <!-- Calendar Grid -->
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 24px;">
+            <div style="text-align: center; font-weight: bold; font-size: 12px; color: #666;">Sun</div>
+            <div style="text-align: center; font-weight: bold; font-size: 12px; color: #666;">Mon</div>
+            <div style="text-align: center; font-weight: bold; font-size: 12px; color: #666;">Tue</div>
+            <div style="text-align: center; font-weight: bold; font-size: 12px; color: #666;">Wed</div>
+            <div style="text-align: center; font-weight: bold; font-size: 12px; color: #666;">Thu</div>
+            <div style="text-align: center; font-weight: bold; font-size: 12px; color: #666;">Fri</div>
+            <div style="text-align: center; font-weight: bold; font-size: 12px; color: #666;">Sat</div>
+
+            <div *ngFor="let d of daysInMonth" [style.grid-column]="getGridColumn(d)"
+                style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; color: white; font-size: 14px; position: relative; cursor: pointer;"
+                [style.backgroundColor]="getShiftColor(getShift(d))">
+                <div style="text-align: center; width: 100%;">
+                    <div style="font-size: 16px;">{{ d }}</div>
+                    <div style="font-size: 11px; margin-top: 2px;">{{ getShiftLabel(getShift(d)) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <ion-card>
+            <ion-card-header>
+                <ion-card-title style="font-size: 14px;">Legend</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 24px; height: 24px; background-color: #3b82f6; border-radius: 4px;"></div>
+                        <span>Morning Shift</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 24px; height: 24px; background-color: #1f2937; border-radius: 4px;"></div>
+                        <span style="color: white;">Night Shift</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 24px; height: 24px; background-color: #d1d5db; border-radius: 4px;"></div>
+                        <span>Off</span>
+                    </div>
+                </div>
+            </ion-card-content>
+        </ion-card>
+    </div>
+</ion-content>

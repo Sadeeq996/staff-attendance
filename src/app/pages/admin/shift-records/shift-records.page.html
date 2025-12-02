@@ -19,12 +19,20 @@
     <div *ngIf="loading">Loading…</div>
     <ion-note *ngIf="!loading && assignments.length===0">No assignments for selected period.</ion-note>
 
-    <ion-list>
-        <ion-item *ngFor="let a of assignments">
-            <div style="flex:1">
-                <div><strong>{{ a.userId }}</strong> — {{ a.shift }}</div>
-                <div><small>{{ a.date }}</small></div>
-            </div>
-        </ion-item>
-    </ion-list>
+    <!-- Grouped by shift type -->
+    <div *ngFor="let group of groupedShifts" style="margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; margin-bottom: 12px; gap: 8px;">
+            <h3 style="margin: 0; flex: 1; text-transform: capitalize;">{{ group.shift }}</h3>
+            <ion-chip>{{ group.count }} staff</ion-chip>
+        </div>
+
+        <ion-list>
+            <ion-item *ngFor="let staff of group.staff">
+                <div style="flex:1">
+                    <div><strong>{{ staff.userFullName }}</strong></div>
+                    <div><small>{{ staff.date }}</small></div>
+                </div>
+            </ion-item>
+        </ion-list>
+    </div>
 </ion-content>

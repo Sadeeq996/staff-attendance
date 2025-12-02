@@ -31,6 +31,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/staff/staff-list/staff-list.page').then(m => m.StaffListPage)
   },
   {
+    path: 'my-shifts',
+    loadComponent: () => import('./pages/staff/shift-assignments/shift-assignments.page').then(m => m.ShiftAssignmentsPage)
+  },
+  {
     path: 'shift-planner',
     loadComponent: () => import('./pages/admin/shift-planner/shift-planner.page').then(m => m.ShiftPlannerPage)
   },

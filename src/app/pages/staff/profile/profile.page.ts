@@ -2,11 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastController, IonContent, IonHeader, IonTitle, IonToolbar, IonButton, ModalController, IonAvatar, IonImg } from '@ionic/angular/standalone';
+import { ActivatedRoute } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { ProfileEditModal } from './profile-edit.modal';
 import { UserService } from 'src/app/services/user.service';
 import { AuditService } from 'src/app/services/audit.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { MockDataService } from 'src/app/services/mock-data.service';
+import { HospitalService } from 'src/app/services/hospital.service';
 import { User } from 'src/app/models/user';
 
 @Component({
@@ -27,12 +30,34 @@ export class ProfilePage implements OnInit {
     private mock: MockDataService,
     private userService: UserService,
     private audit: AuditService,
-    private auth: AuthService
+    private auth: AuthService,
+    private route: ActivatedRoute,
+    private hospitalService: HospitalService
   ) { }
 
   async ngOnInit() {
-    this.user = this.auth.currentUser();
-    this.userHospital = this.mock.getHospitalById(this.user.hospitalId!);
+    // If an `id` query param is present, load that user's profile; otherwise use current user
+    const idParam = this.route.snapshot.queryParamMap.get('id');
+    if (idParam) {
+      const id = Number(idParam);
+      try {
+        const u = await firstValueFrom(this.userService.getUserById$(id));
+        this.user = u || this.auth.currentUser();
+      } catch (e) {
+        console.error('Failed to load user by id', e);
+        this.user = this.auth.currentUser();
+      }
+    } else {
+      this.user = this.auth.currentUser();
+    }
+
+    try {
+      this.userHospital = await firstValueFrom(this.hospitalService.getById(this.user.hospitalId));
+    } catch (e) {
+      console.error('Failed to load hospital', e);
+      this.userHospital = this.mock.getHospitalById(this.user.hospitalId!);
+    }
+    if (this.user?.avatar) this.avatar = this.user.avatar;
     console.log('user Hospital: ', this.userHospital)
   }
 

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonDatetime, IonNote } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonDatetime, IonNote, IonChip } from '@ionic/angular/standalone';
 import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
 import { AuthService } from 'src/app/services/auth.service';
 import { UserService } from 'src/app/services/user.service';
@@ -13,12 +13,13 @@ import { ShiftAssignment } from 'src/app/models/shift-assignment';
     templateUrl: './shift-records.page.html',
     styleUrls: ['./shift-records.page.scss'],
     standalone: true,
-    imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonDatetime, IonNote, CommonModule, FormsModule]
+    imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonDatetime, IonNote, IonChip, CommonModule, FormsModule]
 })
 export class ShiftRecordsPage implements OnInit {
     period: 'daily' | 'weekly' | 'monthly' = 'daily';
     dateIso = new Date().toISOString();
     assignments: ShiftAssignment[] = [];
+    groupedShifts: { shift: string; count: number; staff: any[] }[] = [];
     loading = false;
     admin: any;
 
@@ -44,6 +45,8 @@ export class ShiftRecordsPage implements OnInit {
 
             if (this.period === 'monthly') {
                 this.assignments = all.map(a => ({ ...a, userFullName: userMap.get(a.userId)?.fullName || String(a.userId) })).sort((a, b) => a.date.localeCompare(b.date));
+
+                this.groupAndSortShifts();
                 return;
             }
 
@@ -62,9 +65,33 @@ export class ShiftRecordsPage implements OnInit {
                 const d = new Date(a.date + 'T00:00:00');
                 return d >= start && d < end;
             }).map(a => ({ ...a, userFullName: userMap.get(a.userId)?.fullName || String(a.userId) })).sort((a, b) => a.date.localeCompare(b.date));
+
+            this.groupAndSortShifts();
         } finally {
             this.loading = false;
         }
+    }
+
+    groupAndSortShifts() {
+        // Group assignments by shift type with shift order: morning, night, off
+        const shiftOrder = { 'morning': 0, 'night': 1, 'off': 2 };
+        const grouped = new Map<string, any[]>();
+
+        this.assignments.forEach(a => {
+            if (!grouped.has(a.shift)) {
+                grouped.set(a.shift, []);
+            }
+            grouped.get(a.shift)!.push(a);
+        });
+
+        // Sort by shift order and create result array
+        this.groupedShifts = Array.from(grouped.entries())
+            .sort((a, b) => (shiftOrder as any)[a[0]] - (shiftOrder as any)[b[0]])
+            .map(([shift, staffList]) => ({
+                shift,
+                count: staffList.length,
+                staff: staffList
+            }));
     }
 
     onPeriodChange(ev: any) { this.period = ev.detail.value; this.load(); }

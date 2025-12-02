@@ -208,6 +208,10 @@ export class DashboardPage implements OnInit {
     }
   }
 
+  goShifts() {
+    this.router.navigateByUrl('/my-shifts');
+  }
+
   goHistory() {
     this.router.navigateByUrl('/history');
   }
