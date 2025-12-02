@@ -4,6 +4,14 @@
     <div class="hand hour" [ngStyle]="{'transform': 'rotate(' + hoursDeg + 'deg)'}"></div>
     <div class="hand minute" [ngStyle]="{'transform': 'rotate(' + minutesDeg + 'deg)'}"></div>
     <div class="hand second" [ngStyle]="{'transform': 'rotate(' + secondsDeg + 'deg)'}"></div>
+
+    <div class="numbers">
+      <div class="number" *ngFor="let n of nums; let i = index"
+        [ngStyle]="{'transform': 'rotate(' + (i+1)*30 + 'deg) translate(0, -90px) rotate(-' + (i+1)*30 + 'deg)'}">
+        {{ i + 1 }}
+      </div>
+    </div>
+
     <div class="center-dot"></div>
   </div>
 

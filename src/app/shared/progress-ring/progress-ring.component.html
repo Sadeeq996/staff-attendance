@@ -1,0 +1,17 @@
+<div class="ring-wrapper">
+  <svg class="ring" width="120" height="120">
+    <circle class="bg" cx="60" cy="60" r="54"></circle>
+    <!-- <circle class="progress" cx="60" cy="60" r="54" [attr.stroke-dasharray]="circumference"
+      [attr.stroke-dashoffset]="circumference - (progress * circumference)">
+    </circle> -->
+    <circle class="progress" cx="60" cy="60" r="54" [attr.stroke-dasharray]="circumference"
+      [attr.stroke-dashoffset]="circumference - (progress * circumference)" [attr.stroke]="ringColor">
+    </circle>
+
+  </svg>
+
+  <div class="center-text">
+    <div class="hours">{{ hours | number:'1.0-1' }}h</div>
+    <div class="percent">{{ (progress * 100) | number:'1.0-0' }}%</div>
+  </div>
+</div>

@@ -13,6 +13,7 @@ import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
 import { ClockComponent } from 'src/app/shared/clock/clock.component';
 import { ClockAnalogComponent } from 'src/app/shared/clock-analog/clock-analog.component';
 import { SidebarComponent } from "src/app/shared/sidebar/sidebar.component";
+import { ProgressRingComponent } from "src/app/shared/progress-ring/progress-ring.component";
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -22,7 +23,7 @@ import { SidebarComponent } from "src/app/shared/sidebar/sidebar.component";
     IonNote, IonCardHeader, IonCardContent, IonCard, IonCardTitle,
     IonSpinner,
     IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar,
-    CommonModule, FormsModule, ClockComponent, ClockAnalogComponent, SidebarComponent, IonMenuButton, RouterOutlet]
+    CommonModule, FormsModule, ClockComponent, ClockAnalogComponent, SidebarComponent, IonMenuButton, RouterOutlet, ProgressRingComponent]
 })
 export class DashboardPage implements OnInit {
 
@@ -41,7 +42,7 @@ export class DashboardPage implements OnInit {
 
   //progressbar
   workedHours = 0;
-  shiftTotalHours = 8; // 8-hour shift
+  shiftTotalHours = 0.5; // 8-hour shift
   progress = 0;
   intervalId: any = null;
 
@@ -95,6 +96,10 @@ export class DashboardPage implements OnInit {
       const history = await firstValueFrom(this.attendance.getHistoryForUser$(this.user.id));
       const todayIn = history.find(r => r.status === 'IN' && r.timestamp.startsWith(this.today));
       if (todayIn) this.clockInTime = new Date(todayIn.timestamp);
+      if (this.clockInTime && !this.clockOutTime) {
+        this.startProgressTimer();
+      }
+
       const todayOut = history.find(r => r.status === 'OUT' && r.timestamp.startsWith(this.today));
       if (todayOut) {
         this.clockOutTime = new Date(todayOut.timestamp);
@@ -125,7 +130,7 @@ export class DashboardPage implements OnInit {
       // optimistic update
       this.clockInTime = new Date();
       this.durationText = '';
-
+      this.startProgressTimer();
       // the service may throw synchronously or return an observable that errors
       let obs;
       try {
@@ -135,6 +140,7 @@ export class DashboardPage implements OnInit {
       }
       const rec = await firstValueFrom(obs);
       this.clockInTime = new Date(rec.timestamp);
+      this.startProgressTimer();
       this.message = 'Clock In recorded';
       await toast.dismiss();
       const ok = await this.toastCtrl.create({ message: 'Clock In recorded', duration: 1500 });
@@ -230,5 +236,14 @@ export class DashboardPage implements OnInit {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
+  }
+
+  get remainingTimeText(): string {
+    const remaining = this.shiftTotalHours - this.workedHours;
+    if (remaining <= 0) return 'Shift completed';
+
+    const hrs = Math.floor(remaining);
+    const mins = Math.floor((remaining % 1) * 60);
+    return `${hrs}h ${mins}m remaining`;
   }
 }

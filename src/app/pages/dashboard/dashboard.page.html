@@ -38,6 +38,19 @@
 
     <ion-progress-bar [value]="progress"></ion-progress-bar>
 
+    <div class="work-progress-container" *ngIf="clockInTime && !clockOutTime">
+      <app-progress-ring [progress]="progress" [hours]="workedHours">
+      </app-progress-ring>
+
+      <small>Shift Target: {{ shiftTotalHours }} hours</small>
+    </div>
+
+    <p style="text-align:center; margin-top:8px;">
+      {{ remainingTimeText }}
+    </p>
+
+
+
     <small>Shift Target: {{ shiftTotalHours }} hours</small>
   </div>
 
