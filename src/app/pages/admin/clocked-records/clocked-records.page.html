@@ -1,0 +1,37 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>Clocked In Records</ion-title>
+    </ion-toolbar>
+    <ion-toolbar>
+        <ion-segment value="daily" (ionChange)="onPeriodChange($event)">
+            <ion-segment-button value="daily">
+                <ion-label>Daily</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="weekly">
+                <ion-label>Weekly</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="monthly">
+                <ion-label>Monthly</ion-label>
+            </ion-segment-button>
+        </ion-segment>
+    </ion-toolbar>
+    <ion-toolbar>
+        <ion-datetime displayFormat="yyyy-MM-dd" [(ngModel)]="dateIso"
+            (ionChange)="onDateChange($event)"></ion-datetime>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <div *ngIf="loading">Loading…</div>
+    <ion-note *ngIf="!loading && records.length===0">No records for selected period.</ion-note>
+
+    <ion-list>
+        <ion-item *ngFor="let r of records">
+            <div style="flex:1">
+                <div><strong>{{ r.userFullName || r.userId }}</strong> — {{ r.status }}</div>
+                <div><small>{{ r.timestamp | date:'short' }}</small></div>
+            </div>
+            <ion-note slot="end">{{ r.shift || '' }}</ion-note>
+        </ion-item>
+    </ion-list>
+</ion-content>
