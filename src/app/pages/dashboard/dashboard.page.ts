@@ -42,7 +42,7 @@ export class DashboardPage implements OnInit {
 
   //progressbar
   workedHours = 0;
-  shiftTotalHours = 0.5; // 8-hour shift
+  shiftTotalHours = 8; // 8-hour shift
   progress = 0;
   intervalId: any = null;
 
