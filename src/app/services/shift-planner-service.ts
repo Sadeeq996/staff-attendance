@@ -49,19 +49,34 @@ export class ShiftPlannerService {
   }
 
   /** Get assignments for a hospital and month (month: 1..12) */
-  getMonthAssignments(hospitalId: string, year: number, month: number): ShiftAssignment[] {
-    const prefix = `${year}-${String(month).padStart(2, '0')}`;
-    return this.all().filter(a => a.hospitalId === hospitalId && a.date.startsWith(prefix));
+  private isSameLocalMonth(utcDateString: string, year: number, month: number): boolean {
+    const dt = new Date(utcDateString); // converts to local WAT
+    return dt.getFullYear() === year && (dt.getMonth() + 1) === month;
   }
 
-  /** Observable counterpart */
-  getMonthAssignments$(hospitalId: string, year: number, month: number): Observable<ShiftAssignment[]> {
-    return of(this.getMonthAssignments(hospitalId, year, month));
+  getMonthAssignments(hospitalId: string, year: number, month: number): ShiftAssignment[] {
+    return this.all().filter(a =>
+      a.hospitalId === hospitalId &&
+      this.isSameLocalMonth(a.date, year, month)
+    );
+  }
+
+  getMonthAssignments$(hospitalId: string, year: number, month: number) {
+    return of(
+      this.all().filter(a =>
+        a.hospitalId === hospitalId &&
+        this.isSameLocalMonth(a.date, year, month)
+      )
+    );
   }
 
   /** Get assignment for a single user/date */
   getAssignmentFor(userId: number, hospitalId: string, date: string): ShiftAssignment | null {
-    return this.all().find(a => a.userId === userId && a.hospitalId === hospitalId && a.date === date) || null;
+    return this.all().find(a => {
+      if (a.userId !== userId || a.hospitalId !== hospitalId) return false;
+      const localDate = this.formatDateLocal(a.date);
+      return localDate === date; // date should be YYYY-MM-DD in local time
+    }) || null;
   }
 
   getAssignmentFor$(userId: number, hospitalId: string, date: string): Observable<ShiftAssignment | null> {
@@ -72,10 +87,14 @@ export class ShiftPlannerService {
   saveAssignment(assign: { userId: number; hospitalId: string; date: string; shift: ShiftType; manuallyAssigned?: boolean }) {
     if (!environment.useMock) {
       // TODO: call backend to save single assignment
-      // e.g. this.http.post(`/api/assignments`, assign)
     }
+
     const arr = this.all();
-    const idx = arr.findIndex(a => a.userId === assign.userId && a.hospitalId === assign.hospitalId && a.date === assign.date);
+    const idx = arr.findIndex(a => {
+      if (a.userId !== assign.userId || a.hospitalId !== assign.hospitalId) return false;
+      const localDate = this.formatDateLocal(a.date);
+      return localDate === assign.date;
+    });
 
     if (idx >= 0) {
       // update
@@ -87,11 +106,12 @@ export class ShiftPlannerService {
         id: uuidv4(),
         userId: assign.userId,
         hospitalId: assign.hospitalId,
-        date: assign.date,
+        date: assign.date, // keep original date for storage
         shift: assign.shift,
         manuallyAssigned: !!assign.manuallyAssigned
       });
     }
+
     this.saveAll(arr);
   }
 
@@ -102,11 +122,11 @@ export class ShiftPlannerService {
 
   /** Remove assignment (set to no record) */
   removeAssignment(userId: number, hospitalId: string, date: string) {
-    if (!environment.useMock) {
-      // TODO: call backend to remove assignment
-      // e.g. this.http.delete(`/api/assignments/${id}`)
-    }
-    const arr = this.all().filter(a => !(a.userId === userId && a.hospitalId === hospitalId && a.date === date));
+    const arr = this.all().filter(a => {
+      if (a.userId !== userId || a.hospitalId !== hospitalId) return true;
+      const localDate = this.formatDateLocal(a.date);
+      return localDate !== date;
+    });
     this.saveAll(arr);
   }
 
@@ -154,7 +174,20 @@ export class ShiftPlannerService {
     return out;
   }
 
+
+
   generateDefaultMonthIfEmpty$(hospitalId: string, userIds: number[], year: number, month: number): Observable<ShiftAssignment[]> {
     return of(this.generateDefaultMonthIfEmpty(hospitalId, userIds, year, month));
   }
+
+
+  private formatDateLocal(date: string | Date) {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    // Adjust to local timezone
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  }
+
 }
