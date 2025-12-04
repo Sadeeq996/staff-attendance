@@ -46,7 +46,7 @@ export class UserService {
     localStorage.setItem(this.LS_KEY, JSON.stringify(users));
   }
 
-  getAll(hospitalId: number): User[] {
+  getAll(hospitalId: string): User[] {
     return this.load().filter(u => u.hospitalId === hospitalId);
   }
 

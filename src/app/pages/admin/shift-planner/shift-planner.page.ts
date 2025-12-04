@@ -3,36 +3,41 @@ import { CommonModule } from '@angular/common';
 import {
   IonItem, IonLabel, IonSelect, IonSelectOption,
   IonButton, IonHeader, IonContent, IonTitle, IonToolbar,
-  IonModal, IonList, IonAvatar, IonGrid, IonRow, IonCol, IonChip, IonButtons, IonNote
+  IonModal, IonList, IonAvatar, IonChip, IonButtons, IonNote
 } from '@ionic/angular/standalone';
-import { AuthService } from 'src/app/services/auth.service';
-import { ShiftType, ShiftAssignment } from 'src/app/models/shift-assignment';
-import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+
+import { AuthService } from 'src/app/services/auth.service';
+import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
 import { UserService } from 'src/app/services/user.service';
-import { User, users } from 'src/app/models/user';
-import { MockDataService } from 'src/app/services/mock-data.service';
+import { ShiftType, ShiftAssignment } from 'src/app/models/shift-assignment';
+import { User } from 'src/app/models/user';
 
 @Component({
   selector: 'app-shift-planner',
   templateUrl: './shift-planner.page.html',
   styleUrls: ['./shift-planner.page.scss'],
   standalone: true,
-  imports: [IonNote, IonButtons,
-    IonToolbar, IonTitle, IonContent, IonHeader, CommonModule, FormsModule,
+  imports: [
+    IonNote, IonButtons, IonToolbar, IonTitle, IonContent, IonHeader,
+    CommonModule, FormsModule,
     IonItem, IonLabel, IonSelect, IonSelectOption, IonButton,
-    IonModal, IonList, IonAvatar, IonChip]
+    IonModal, IonList, IonAvatar, IonChip
+  ]
 })
 export class ShiftPlannerPage implements OnInit {
-  admin: any;
-  users: any[] = [];
+  admin!: any;
+  users: User[] = [];
   year!: number;
-  month!: number; // 1..12
+  month!: number;
   daysInMonth: number[] = [];
   selectedUserId!: number;
-  assignmentsMap: Map<string, ShiftType> = new Map(); // date -> shift (for selected user)
-  selectedUser: any;
+  assignmentsMap = new Map<string, ShiftType>(); // selected user's assignments
+  selectedUser!: User;
+  dayCounts: Record<number, Record<ShiftType, number>> = {};
+
+
 
   // modal/day view
   modalOpen = false;
@@ -40,48 +45,50 @@ export class ShiftPlannerPage implements OnInit {
   dayDateStr = '';
   dayAssignments: { user: User; shift: ShiftType }[] = [];
 
-  constructor(private planner: ShiftPlannerService, private auth: AuthService, private userService: UserService, private mock: MockDataService) { }
+  constructor(
+    private auth: AuthService,
+    private planner: ShiftPlannerService,
+    private userService: UserService
+  ) { }
 
   async ngOnInit() {
     this.admin = this.auth.currentUser();
-    console.log('admin: ', this.admin);
-    // this.users = this.mock.getUsers();
-    // console.log('all users from mock: ', this.users);
-
-    await this.loadUsersFromService();
+    await this.loadUsers();
     this.setMonthTo(new Date().getFullYear(), new Date().getMonth() + 1);
     await firstValueFrom(this.ensureMonthData$());
     await this.loadAssignmentsForSelectedUser();
   }
 
-  async loadUsersFromService() {
-    // load users for this admin's hospital using the UserService
+  private async loadUsers() {
     try {
       this.users = await firstValueFrom(this.userService.getUsers$(this.admin.hospitalId));
-      if (this.users && this.users.length > 0) {
-        console.log('users: ', this.users)
-        this.selectedUserId = this.users[0].id;
-      } else {
-        // fallback: empty list
-        this.users = [];
-        this.selectedUserId = -1;
-      }
+      if (this.users.length > 0) this.selectedUserId = this.users[0].id;
+      else this.selectedUserId = -1;
     } catch (e) {
-      console.error('Failed to load users for shift planner', e);
+      console.error('Failed to load users', e);
       this.users = [];
       this.selectedUserId = -1;
     }
   }
 
+  async updateDayCounts() {
+    this.dayCounts = {}; // reset
+    for (const d of this.daysInMonth) {
+      this.dayCounts[d] = await this.getCountsForDay(d);
+    }
+  }
+
+
   setMonthTo(y: number, m: number) {
-    this.year = y; this.month = m;
+    this.year = y;
+    this.month = m;
     const days = new Date(this.year, this.month, 0).getDate();
     this.daysInMonth = Array.from({ length: days }, (_, i) => i + 1);
   }
 
   async prevMonth() {
     let m = this.month - 1, y = this.year;
-    if (m < 1) { m = 12; y -= 1; }
+    if (m < 1) { m = 12; y--; }
     this.setMonthTo(y, m);
     await firstValueFrom(this.ensureMonthData$());
     await this.loadAssignmentsForSelectedUser();
@@ -89,81 +96,67 @@ export class ShiftPlannerPage implements OnInit {
 
   async nextMonth() {
     let m = this.month + 1, y = this.year;
-    if (m > 12) { m = 1; y += 1; }
+    if (m > 12) { m = 1; y++; }
     this.setMonthTo(y, m);
     await firstValueFrom(this.ensureMonthData$());
     await this.loadAssignmentsForSelectedUser();
   }
 
-  ensureMonthData() {
-    const userIds = this.users.map(u => u.id);
-    if ((this.planner as any).generateDefaultMonthIfEmpty) {
-      (this.planner as any).generateDefaultMonthIfEmpty(this.admin.hospitalId!, userIds, this.year, this.month);
-    }
-  }
-
   ensureMonthData$() {
     const userIds = this.users.map(u => u.id);
-    return this.planner.generateDefaultMonthIfEmpty$(this.admin.hospitalId!, userIds, this.year, this.month);
+    return this.planner.generateDefaultMonthIfEmpty$(this.admin.hospitalId, userIds, this.year, this.month);
   }
 
   async loadAssignmentsForSelectedUser() {
     this.assignmentsMap.clear();
-    const items = (await firstValueFrom(this.planner.getMonthAssignments$(this.admin.hospitalId!, this.year, this.month)))
-      .filter(a => a.userId === this.selectedUserId);
-    items.forEach(a => this.assignmentsMap.set(a.date, a.shift));
+    const allAssignments = await firstValueFrom(this.planner.getMonthAssignments$(this.admin.hospitalId, this.year, this.month));
+    const userAssignments = allAssignments.filter(a => a.userId === this.selectedUserId);
+    userAssignments.forEach(a => this.assignmentsMap.set(a.date, a.shift));
+    await this.updateDayCounts();
   }
 
   getShift(day: number): ShiftType {
-    const date = `${this.year}-${String(this.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const date = this.formatDate(day);
     return this.assignmentsMap.get(date) || 'off';
   }
 
   async changeShift(day: number, newShift: ShiftType) {
-    const date = `${this.year}-${String(this.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    await this.saveAssignmentSafe({ userId: this.selectedUserId, hospitalId: this.admin.hospitalId!, date, shift: newShift });
+    const date = this.formatDate(day);
+    await this.saveAssignment({ userId: this.selectedUserId, hospitalId: this.admin.hospitalId, date, shift: newShift });
     await this.loadAssignmentsForSelectedUser();
   }
 
   async bulkAssign(shift: ShiftType) {
     for (const d of this.daysInMonth) {
-      const date = `${this.year}-${String(this.month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      await this.saveAssignmentSafe({ userId: this.selectedUserId, hospitalId: this.admin.hospitalId!, date, shift });
+      const date = this.formatDate(d);
+      await this.saveAssignment({ userId: this.selectedUserId, hospitalId: this.admin.hospitalId, date, shift });
     }
     await this.loadAssignmentsForSelectedUser();
   }
 
   async copyPreviousMonth() {
     let prevMonth = this.month - 1, prevYear = this.year;
-    if (prevMonth < 1) { prevMonth = 12; prevYear -= 1; }
-    const prev = (await firstValueFrom(this.planner.getMonthAssignments$(this.admin.hospitalId!, prevYear, prevMonth)))
-      .filter(a => a.userId === this.selectedUserId);
-    for (const a of prev) {
-      await this.saveAssignmentSafe({
-        userId: a.userId,
-        hospitalId: a.hospitalId.toString(),
-        date: `${this.year}-${String(this.month).padStart(2, '0')}-${a.date.slice(-2)}`,
-        shift: a.shift
-      });
+    if (prevMonth < 1) { prevMonth = 12; prevYear--; }
+    const prevAssignments = await firstValueFrom(this.planner.getMonthAssignments$(this.admin.hospitalId, prevYear, prevMonth));
+    const userPrevAssignments = prevAssignments.filter(a => a.userId === this.selectedUserId);
+    for (const a of userPrevAssignments) {
+      const date = `${this.year}-${String(this.month).padStart(2, '0')}-${a.date.slice(-2)}`;
+      await this.saveAssignment({ userId: a.userId, hospitalId: a.hospitalId, date, shift: a.shift });
     }
     await this.loadAssignmentsForSelectedUser();
   }
 
-  // --- Day modal / drawer handling (Option 3) ---
-
   async openDay(day: number) {
     this.selectedDay = day;
-    this.dayDateStr = `${this.year}-${String(this.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    this.dayDateStr = this.formatDate(day);
 
-    const monthItems = await firstValueFrom(this.planner.getMonthAssignments$(this.admin.hospitalId!, this.year, this.month));
+    const monthAssignments = await firstValueFrom(this.planner.getMonthAssignments$(this.admin.hospitalId, this.year, this.month));
     this.dayAssignments = this.users.map(u => {
-      const a = monthItems.find(it => it.userId === u.id && it.date === this.dayDateStr);
-      return { user: u, shift: a ? a.shift : 'off' as ShiftType };
+      const a = monthAssignments.find(m => m.userId === u.id && m.date === this.dayDateStr);
+      return { user: u, shift: a ? a.shift : 'off' };
     });
-
-    this.modalOpen = true; // only open after dayAssignments is ready
+    this.modalOpen = true;
   }
-
 
   closeDay() {
     this.modalOpen = false;
@@ -173,51 +166,42 @@ export class ShiftPlannerPage implements OnInit {
 
   async assignShiftForUserInDay(userId: number, newShift: ShiftType) {
     if (!this.dayDateStr) return;
-    await this.saveAssignmentSafe({ userId, hospitalId: this.admin.hospitalId!, date: this.dayDateStr, shift: newShift });
-    // update local view
+    await this.saveAssignment({ userId, hospitalId: this.admin.hospitalId, date: this.dayDateStr, shift: newShift });
     this.dayAssignments = this.dayAssignments.map(d => d.user.id === userId ? { user: d.user, shift: newShift } : d);
-    // Also refresh selectedUser map if selected user is same
-    if (this.selectedUserId) await this.loadAssignmentsForSelectedUser();
+    await this.loadAssignmentsForSelectedUser();
   }
 
-  bulkAssignDay(newShift: ShiftType) {
+  async bulkAssignDay(newShift: ShiftType) {
     if (!this.dayDateStr) return;
-    (async () => {
-      for (const u of this.users) {
-        await this.saveAssignmentSafe({ userId: u.id, hospitalId: this.admin.hospitalId!, date: this.dayDateStr, shift: newShift });
-      }
-      this.dayAssignments = this.dayAssignments.map(d => ({ user: d.user, shift: newShift }));
-      if (this.selectedUserId) await this.loadAssignmentsForSelectedUser();
-    })();
+    for (const u of this.users) {
+      await this.saveAssignment({ userId: u.id, hospitalId: this.admin.hospitalId, date: this.dayDateStr, shift: newShift });
+    }
+    this.dayAssignments = this.dayAssignments.map(d => ({ user: d.user, shift: newShift }));
+    await this.loadAssignmentsForSelectedUser();
+    
   }
 
-  // helper to compute counts per day for grid
-  getCountsForDay(day: number) {
+  async getCountsForDay(day: number): Promise<Record<ShiftType, number>> {
     const date = `${this.year}-${String(this.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    // prefer observable variant if available
-    // synchronous fallback for templates — try to fetch synchronously if planner exposes it
-    const monthItems: ShiftAssignment[] = (this.planner as any).getMonthAssignments ? (this.planner as any).getMonthAssignments(this.admin.hospitalId!, this.year, this.month) : [];
-    const dayItems = monthItems.filter((it: ShiftAssignment) => it.date === date);
-    const counts = { morning: 0, night: 0, off: 0 };
-    dayItems.forEach((it: ShiftAssignment) => {
-      if (it.shift === 'morning') counts.morning++;
-      else if (it.shift === 'night') counts.night++;
-      else counts.off++;
+    const monthItems: ShiftAssignment[] = await firstValueFrom(
+      this.planner.getMonthAssignments$(this.admin.hospitalId!, this.year, this.month)
+    );
+    const dayItems = monthItems.filter(it => it.date === date);
+
+    const counts: Record<ShiftType, number> = { morning: 0, night: 0, off: 0 };
+    dayItems.forEach(it => {
+      counts[it.shift] = (counts[it.shift] || 0) + 1;
     });
     return counts;
   }
 
-  /**
-   * Save assignment using Observable-based API if available, otherwise call sync method.
-   */
-  private async saveAssignmentSafe(a: { userId: number; hospitalId: string; date: string; shift: ShiftType; }) {
-    if ((this.planner as any).saveAssignment$) {
-      await firstValueFrom((this.planner as any).saveAssignment$(a));
-    } else if ((this.planner as any).saveAssignment) {
-      // sync fallback
-      (this.planner as any).saveAssignment(a);
-    } else {
-      throw new Error('Planner save assignment method not found');
-    }
+
+
+  private formatDate(day: number) {
+    return `${this.year}-${String(this.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  }
+
+  private async saveAssignment(a: { userId: number; hospitalId: string; date: string; shift: ShiftType }) {
+    await firstValueFrom(this.planner.saveAssignment$(a));
   }
 }

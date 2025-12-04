@@ -54,7 +54,10 @@ export class ClockedRecordsPage implements OnInit {
 
             const filtered = all.filter(r => r.hospitalId === hospitalId && new Date(r.timestamp) >= start && new Date(r.timestamp) < end);
             // fetch user map to enrich records with names
-            const users = await firstValueFrom(this.userService.getUsers$(hospitalId));
+            // const users = await firstValueFrom(this.userService.getUsers$(hospitalId));
+
+            const allUsers = await firstValueFrom(this.userService.list$());
+            const users = allUsers.filter(u => u.hospitalId === hospitalId);
             const userMap = new Map<number, any>(users.map(u => [u.id, u] as [number, any]));
             const enriched = filtered.map(r => ({ ...r, userFullName: userMap.get(r.userId)?.fullName || String(r.userId) }));
             // sort by timestamp desc

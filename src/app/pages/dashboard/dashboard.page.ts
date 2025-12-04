@@ -42,7 +42,7 @@ export class DashboardPage implements OnInit {
 
   //progressbar
   workedHours = 0;
-  shiftTotalHours = 0.5; // 8-hour shift
+  shiftTotalHours = 8; // 8-hour shift
   progress = 0;
   intervalId: any = null;
 
@@ -71,6 +71,20 @@ export class DashboardPage implements OnInit {
     const dd = now.getDate();
     this.today = `${yyyy}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
 
+    // debug - show normalized today and user/hospital values
+    console.log('DEBUG: today', this.today, 'user.id', this.user.id, 'hospitalId', this.user.hospitalId);
+
+    // show raw roster (calls the new debug method)
+    try {
+      const roster = await this.planner.debugRoster();
+      console.log('DEBUG roster length from service:', roster.length);
+    } catch (e) {
+      console.error('Failed to debugRoster()', e);
+    }
+
+
+
+
 
     await firstValueFrom(
       this.planner.generateDefaultMonthIfEmpty$(this.user.hospitalId!, [this.user.id], yyyy, mm)
@@ -82,9 +96,13 @@ export class DashboardPage implements OnInit {
     console.log('this.user.id:', this.user.id, typeof this.user.id);
     console.log('this.user.hospitalId:', this.user.hospitalId, typeof this.user.hospitalId);
 
-    const assign = this.planner.getAssignmentFor(this.user.id, this.user.hospitalId!, this.today);
-    console.log('Today assignment:', assign);
+    // const assign = await this.planner.getAssignmentFor(this.user.id, this.user.hospitalId!, this.today);
+    const assign = await this.planner.getAssignmentFor(this.user.id, this.user.hospitalId!, this.today);
+
+    console.log('Today date:', this.today);
+    console.log('Today assignment:', assign?.dateLocal);
     this.assignedShift = assign ? assign.shift : null;
+
 
     const options: Intl.DateTimeFormatOptions = {
       weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
@@ -112,6 +130,11 @@ export class DashboardPage implements OnInit {
       this.loading = false;
     }
   }
+
+
+
+
+
 
   async clockIn() {
     this.message = '';

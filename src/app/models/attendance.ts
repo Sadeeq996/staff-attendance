@@ -6,6 +6,7 @@ export interface Attendance {
     status: 'IN' | 'OUT';
     timestamp: string; // ISO;
     durationMinutes?: number; // only for OUT records
+    dateLocal?: string;
 }
 
 

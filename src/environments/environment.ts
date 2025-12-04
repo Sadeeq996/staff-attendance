@@ -6,10 +6,13 @@ export const environment = {
   production: false,
   // When true the app uses in-memory / localStorage mock data.
   // Set to false to enable real backend HttpClient calls (implement endpoints in services).
-  useMock: true
+  useMock: false
   ,
   // Optional backend base URL. When empty, relative URLs are used.
-  apiBaseUrl: ''
+  apiBaseUrl: '',
+
+  googleSheetsApiUrl: 'https://script.google.com/macros/s/AKfycbyfvWO7iYWTWApJy7fAKX_Nvc5LCnTOZOEiCOzNL28QZzK_2oWN-XJpWeqNHYDKYF3tuQ/exec',
+  googleSheetsApiKey: 'ABUBAKARSADEEQSULEIMAN'
 };
 
 /*

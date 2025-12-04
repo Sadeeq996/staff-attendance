@@ -7,4 +7,5 @@ export interface ShiftAssignment {
     date: string; // YYYY-MM-DD
     shift: ShiftType;
     manuallyAssigned: boolean;
+    dateLocal?: string; // optional normalized date for local date matching
 }

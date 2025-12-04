@@ -37,9 +37,9 @@
       <div class="day-number">{{ d }}</div>
 
       <div class="counts">
-        <ion-chip size="small" class="count-chip">M {{ getCountsForDay(d).morning }}</ion-chip>
-        <ion-chip size="small" class="count-chip">N {{ getCountsForDay(d).night }}</ion-chip>
-        <ion-chip size="small" class="count-chip">Off {{ getCountsForDay(d).off }}</ion-chip>
+        <ion-chip size="small" class="count-chip">M {{ dayCounts[d]?.morning || 0 }}</ion-chip>
+<ion-chip size="small" class="count-chip">N {{ dayCounts[d]?.night || 0 }}</ion-chip>
+<ion-chip size="small" class="count-chip">Off {{ dayCounts[d]?.off || 0 }}</ion-chip>
       </div>
 
       <div class="selected-user-shift">

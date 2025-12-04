@@ -5,85 +5,137 @@ import { Attendance } from '../models/attendance';
 import { MockDataService } from './mock-data.service';
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from '../../environments/environment';
-// If/when backend is available you can import HttpClient and call endpoints:
-// import { HttpClient } from '@angular/common/http';
+import { GoogleSheetsService } from './google-sheets';
+import { catchError, map } from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AttendanceService {
-
   private readonly KEY = 'mock_attendance_v1';
 
-  constructor(private storage: StorageService, private mockData: MockDataService) {
+  constructor(
+    private storage: StorageService,
+    private mockData: MockDataService,
+    private gs: GoogleSheetsService
+  ) {
     const existing = this.storage.get(this.KEY);
-
-    // If no attendance stored yet and we're using mock data, seed with central mock data
     if ((!existing || existing.length === 0) && environment.useMock) {
       const seed = this.mockData.getAttendance();
       this.storage.set(this.KEY, seed);
     }
   }
 
-  private all(): Attendance[] {
-    return this.storage.get(this.KEY) || [];
+  private allLocal(): Attendance[] {
+    return this.storage.get(this.KEY) || [].map(this.addDateLocal);;
   }
 
-  /** Public accessor for all attendance records (used by admin pages) */
   getAllRecords$(): Observable<Attendance[]> {
-    return of(this.all());
+    if (!environment.useMock && environment.googleSheetsApiUrl) {
+      return this.gs.list('attendance').pipe(
+        catchError(() => of(this.allLocal()))
+      ) as Observable<Attendance[]>;
+    }
+    return of(this.allLocal());
   }
 
-  save$(record: Attendance): Observable<Attendance> {
-    if (!environment.useMock) {
-      // TODO: implement backend persistence here using HttpClient
-      // e.g. return firstValueFrom(this.http.post<Attendance>('/api/attendance', record));
+  save$(record: any): Observable<any> {
+    // ensure record has id and dateLocal
+    if (!record.id) record.id = uuidv4();
+    if (!record.dateLocal) record.dateLocal = this.localDateString(new Date(record.timestamp || Date.now()));
+
+    if (!environment.useMock && environment.googleSheetsApiUrl) {
+      return this.gs.create('attendance', record).pipe(
+        map(res => {
+          if (res) {
+            const arr = this.allLocal();
+            arr.push(res);
+            this.storage.set(this.KEY, arr);
+            return res;
+          }
+          // fallback if API didn't return created object
+          const arr = this.allLocal();
+          arr.push(record);
+          this.storage.set(this.KEY, arr);
+          return record;
+        }),
+        catchError(() => {
+          const arr = this.allLocal();
+          arr.push(record);
+          this.storage.set(this.KEY, arr);
+          return of(record);
+        })
+      );
+    } else {
+      const arr = this.allLocal();
+      arr.push(record);
+      this.storage.set(this.KEY, arr);
+      return of(record);
     }
-    const arr = this.all();
-    arr.push(record);
-    this.storage.set(this.KEY, arr);
-    return of(record);
   }
+
+  // ---------------- helpers for local dates ----------------
+  private localDateString(d: Date): string {
+    // produce YYYY-MM-DD using the local timezone of the runtime (e.g., WAT)
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private getRecordDateLocal(r: any): string {
+    // prefer explicit dateLocal if present (from older saves it may be missing)
+    if (r.dateLocal) return String(r.dateLocal);
+    // derive from timestamp (timestamp may be ISO string in UTC)
+    try {
+      const dt = new Date(r.timestamp);
+      return this.localDateString(dt);
+    } catch (e) {
+      return this.localDateString(new Date());
+    }
+  }
+
+  private getTodayStr(): string {
+    const now = new Date();
+    return this.localDateString(now);
+  }
+
+  // ---------------- clock in/out ----------------
 
   clockIn$(userId: number, hospitalId: number | undefined, shift: 'morning' | 'night'): Observable<Attendance> {
-    if (!environment.useMock) {
-      // TODO: call backend clock-in endpoint and return the created record
-      // e.g. return firstValueFrom(this.http.post<Attendance>(`/api/attendance/clockin`, { userId, hospitalId, shift }));
-    }
-    const today = this.getTodayStr();
-    const exists = this.all().some(r =>
+    const today = new Date().toLocaleDateString('en-CA');
+
+    // check both records stored with dateLocal and timestamp-derived date
+    const exists = this.allLocal().some(r =>
       r.userId === userId &&
       r.shift === shift &&
       r.status === 'IN' &&
-      r.timestamp.startsWith(today)
+      this.getRecordDateLocal(r) === today
     );
     if (exists) throw new Error('Already clocked in for this shift today');
 
-    const rec: Attendance = {
+    const now = new Date();
+    const rec: any = {
       id: uuidv4(),
       userId,
       hospitalId,
       shift,
       status: 'IN',
-      timestamp: new Date().toISOString()
+      timestamp: now.toISOString(),     // keep canonical ISO timestamp (UTC)
+      dateLocal: this.localDateString(now) // store local date for comparison
     };
-    this.save$(rec);
-    return of(rec);
+
+    // return the save observable so caller can await persistence
+    return this.save$(rec) as Observable<Attendance>;
   }
 
   clockOut$(userId: number, hospitalId: number | undefined, shift: 'morning' | 'night'): Observable<Attendance> {
-    if (!environment.useMock) {
-      // TODO: call backend clock-out endpoint and return the created record
-      // e.g. return firstValueFrom(this.http.post<Attendance>(`/api/attendance/clockout`, { userId, hospitalId, shift }));
-    }
-    const today = this.getTodayStr();
-    const arr = this.all();
+    const today = new Date().toLocaleDateString('en-CA');
+    const arr = this.allLocal();
 
     const inRec = arr.find(r =>
       r.userId === userId &&
       r.shift === shift &&
       r.status === 'IN' &&
-      r.timestamp.startsWith(today)
+      this.getRecordDateLocal(r) === today
     );
     if (!inRec) throw new Error('No IN record found for this shift today');
 
@@ -91,50 +143,103 @@ export class AttendanceService {
       r.userId === userId &&
       r.shift === shift &&
       r.status === 'OUT' &&
-      r.timestamp.startsWith(today)
+      this.getRecordDateLocal(r) === today
     );
     if (outExists) throw new Error('Already clocked out for this shift today');
 
     const clockOutTime = new Date();
     const clockInTime = new Date(inRec.timestamp);
-    const durationMinutes = Math.floor((clockOutTime.getTime() - clockInTime.getTime()) / 1000 / 60);
+    const durationMinutes = Math.max(0, Math.floor((clockOutTime.getTime() - clockInTime.getTime()) / 1000 / 60));
 
-    const rec: Attendance = {
+    const rec: any = {
       id: uuidv4(),
       userId,
       hospitalId,
       shift,
       status: 'OUT',
       timestamp: clockOutTime.toISOString(),
+      dateLocal: this.localDateString(clockOutTime),
       durationMinutes
     };
-    this.save$(rec);
-    return of(rec);
+
+    return this.save$(rec) as Observable<Attendance>;
   }
 
   getHistoryForUser$(userId: number): Observable<Attendance[]> {
-    const res = this.all()
+    if (!environment.useMock && environment.googleSheetsApiUrl) {
+      return this.gs.list('attendance').pipe(
+        map((rows: Attendance[]) =>
+          rows
+            .map(r => {
+              // ensure dateLocal exists in rows we received
+              const rr: any = Object.assign({}, r);
+              if (!rr.dateLocal) rr.dateLocal = this.getRecordDateLocal(rr);
+              return rr;
+            })
+            .filter(r => Number(r.userId) === Number(userId))
+            .sort((a, b) => +new Date(b.timestamp) - +new Date(a.timestamp))
+        ),
+        catchError(() => of(this.allLocal().filter(r => r.userId === userId)))
+      );
+    }
+    const res = this.allLocal()
+      .map(r => {
+        // ensure dateLocal exists on local copies too
+        const rr: any = Object.assign({}, r);
+        if (!rr.dateLocal) rr.dateLocal = this.getRecordDateLocal(rr);
+        return rr;
+      })
       .filter(r => r.userId === userId)
       .sort((a, b) => +new Date(b.timestamp) - +new Date(a.timestamp));
     return of(res);
   }
 
-  private getTodayStr(): string {
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
+  update$(recordId: string, updateData: Partial<Attendance>) {
+    if (!environment.useMock && environment.googleSheetsApiUrl) {
+      const data = Object.assign({}, updateData, { id: recordId });
+      // ensure dateLocal if timestamp included
+      if ((data as any).timestamp && !(data as any).dateLocal) {
+        (data as any).dateLocal = this.getRecordDateLocal(data as any);
+      }
+      return this.gs.update('attendance', data).pipe(
+        map((updated: any) => {
+          const arr = this.allLocal();
+          const idx = arr.findIndex(x => x.id === recordId);
+          if (idx >= 0) {
+            arr[idx] = updated;
+            this.storage.set(this.KEY, arr);
+          }
+          return updated;
+        }),
+        catchError(() => {
+          const arr = this.allLocal();
+          const idx = arr.findIndex(x => x.id === recordId);
+          if (idx >= 0) {
+            arr[idx] = { ...arr[idx], ...updateData };
+            this.storage.set(this.KEY, arr);
+            return of(arr[idx]);
+          }
+          return of(undefined);
+        })
+      );
+    } else {
+      const arr = this.allLocal();
+      const index = arr.findIndex(r => r.id === recordId);
+      if (index === -1) return of(undefined);
+      arr[index] = { ...arr[index], ...updateData };
+      // ensure dateLocal if timestamp changed
+      if ((updateData as any).timestamp) arr[index].dateLocal = this.getRecordDateLocal(arr[index]);
+      this.storage.set(this.KEY, arr);
+      return of(arr[index]);
+    }
   }
 
-  update$(recordId: string, updateData: Partial<Omit<Attendance, 'id'>>): Observable<Attendance | undefined> {
-    const arr = this.all();
-    const index = arr.findIndex(r => r.id === recordId);
-    if (index === -1) return of(undefined);
-
-    arr[index] = { ...arr[index], ...updateData };
-    this.storage.set(this.KEY, arr);
-    return of(arr[index]);
+  private addDateLocal(record: Attendance): Attendance {
+    const dt = new Date(record.timestamp);
+    record.dateLocal = dt.toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
+    return record;
   }
+
+
 
 }

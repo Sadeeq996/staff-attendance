@@ -35,8 +35,8 @@ export class AdminUsersPage {
         this.refresh();
     }
 
-    refresh() {
-        this.users = this.userService.list();
+    async refresh() {
+        this.users = await firstValueFrom(this.userService.list$());
         this.applyFilters();
     }
 
