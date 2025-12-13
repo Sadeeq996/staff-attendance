@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonList, IonItem, IonLabel, IonButton, IonAvatar, IonIcon, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/angular/standalone';
+import { IonList, IonItem, IonLabel, IonButton, IonAvatar, IonIcon, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { AttendanceService } from 'src/app/services/attendance.service';
@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './staff-list.page.html',
   styleUrls: ['./staff-list.page.scss'],
   standalone: true,
-  imports: [IonContent, IonTitle, IonToolbar, IonHeader, CommonModule, IonList, IonItem, IonLabel, IonButton]
+  imports: [IonButtons, IonContent, IonTitle, IonToolbar, IonHeader, CommonModule, IonList, IonItem, IonLabel, IonButton]
 })
 export class StaffListPage implements OnInit {
   admin: any;

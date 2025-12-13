@@ -1,0 +1,27 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>qr-scanner</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">qr-scanner</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <zxing-scanner (scanSuccess)="onCodeResult($event)"></zxing-scanner>
+  <p *ngIf="scanStatus" [style.color]="isSuccess ? 'green' : 'red'">
+    {{ scanStatus }}
+  </p>
+  <p>Last Scanned Token: {{ lastScannedToken }}</p>
+</ion-content>
+
+<ion-content class="ion-padding">
+  <zxing-scanner (scanSuccess)="onScanSuccess($event)"></zxing-scanner>
+  <ion-button expand="block" color="medium" (click)="cancel()">Cancel</ion-button>
+
+  <ion-toast *ngIf="toastMessage" [message]="toastMessage" [color]="toastColor" [duration]="2000"
+    (ionToastDidDismiss)="toastMessage = null"></ion-toast>
+</ion-content>

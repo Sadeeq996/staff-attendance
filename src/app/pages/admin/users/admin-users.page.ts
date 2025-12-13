@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { IonIcon, IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { User } from 'src/app/models/user';
 import { firstValueFrom } from 'rxjs';
@@ -8,7 +8,7 @@ import { UserService } from 'src/app/services/user.service';
 import { MockDataService } from 'src/app/services/mock-data.service';
 import { AuditService } from 'src/app/services/audit.service';
 import { UserModalPage } from '../user-modal/user-modal.page';
-
+import { close, fileTray, home, cube, personAdd, arrowBack, arrowBackOutline } from 'ionicons/icons';
 @Component({
     selector: 'app-admin-users',
     templateUrl: './admin-users.page.html',
@@ -22,6 +22,18 @@ export class AdminUsersPage {
     roleFilter: '' | User['role'] | 'all' = '';
     hospitalFilter: string | '' = '';
     hospitals: any[] = [];
+
+    //ionicons
+    close = close;
+    fileTray = fileTray;
+    home = home;
+    cube = cube;
+    personAdd = personAdd;
+    arrowBack = arrowBackOutline;
+
+
+
+
 
     private userService = inject(UserService);
     private mock = inject(MockDataService);

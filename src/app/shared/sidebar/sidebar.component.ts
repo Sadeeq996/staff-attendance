@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonIcon, IonItem, IonLabel, MenuController, IonList, IonContent, IonTitle, IonToolbar, IonHeader, IonMenu, IonButton, IonTabButton, IonButtons, IonMenuButton, IonToggle, IonImg, IonAvatar, IonCard } from "@ionic/angular/standalone";
-import { homeOutline, cubeOutline, peopleOutline, pricetagOutline, settingsOutline } from 'ionicons/icons';
+import { homeOutline, cubeOutline, peopleOutline, pricetagOutline, settingsOutline, closeOutline } from 'ionicons/icons';
+import { AuthService } from 'src/app/services/auth.service';
+import { map } from 'rxjs';
+import { User } from 'src/app/models/user';
+import { LoginPage } from '../../pages/auth/login/login.page';
 
 @Component({
   standalone: true,
@@ -15,10 +19,15 @@ export class SidebarComponent implements OnInit {
   readonly homeIcon = homeOutline;
   readonly dashboardIcon = cubeOutline;
   readonly usersIcon = peopleOutline;
-  readonly tagIcon = pricetagOutline;
   readonly settingsIcon = settingsOutline;
+  close = closeOutline;
 
-  constructor(private menuCtrl: MenuController, private router: Router) { }
+  user!: User | null;
+
+  constructor(private menuCtrl: MenuController,
+    private router: Router,
+    private auth: AuthService,
+  ) { }
 
   openMenu() {
     this.menuCtrl.open();
@@ -36,6 +45,14 @@ export class SidebarComponent implements OnInit {
     return this.router.url === route;
   }
 
-  ngOnInit() { }
+  logOut() {
+    this.auth.logout();
+    this.router.navigateByUrl('/login')
+  }
+
+  async ngOnInit() {
+    this.user = await this.auth.currentUser();
+    console.log('avatar: ', this.user)
+  }
 
 }

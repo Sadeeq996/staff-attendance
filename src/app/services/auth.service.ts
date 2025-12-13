@@ -4,7 +4,7 @@ import { User } from '../models/user';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom, Observable, of } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, of } from 'rxjs';
 import { MockDataService } from './mock-data.service';
 
 
@@ -12,6 +12,8 @@ import { MockDataService } from './mock-data.service';
   providedIn: 'root'
 })
 export class AuthService {
+
+  private userSubject = new BehaviorSubject<User | null>(this.currentUser());
 
   private mockUsers: User[] = [];
 
@@ -23,6 +25,9 @@ export class AuthService {
   ) {
     // initialize mock users from the central mock data service
     this.mockUsers = this.mockData.getUsers();
+
+    const storedUser = this.storage.get(this.KEY);
+    this.userSubject = new BehaviorSubject<User | null>(storedUser || null);
   }
 
   private readonly KEY = 'mock_auth_user';
@@ -41,6 +46,7 @@ export class AuthService {
     const user = this.mockUsers.find(u => u.email === email);
     if (!user) return Promise.reject('Invalid credentials');
     this.storage.set(this.KEY, user);
+    this.userSubject.next(user);
     return Promise.resolve(user);
   }
 
@@ -53,12 +59,14 @@ export class AuthService {
     const user = this.mockUsers.find(u => u.email === email);
     if (!user) throw new Error('Invalid credentials');
     this.storage.set(this.KEY, user);
+    this.userSubject.next(user);
     return of(user);
   }
 
   logout() {
     this.storage.remove(this.KEY);
     this.storage.clear();
+    this.userSubject.next(null); // <-- emit logout
     this.router.navigateByUrl('/login');
   }
 
@@ -72,7 +80,7 @@ export class AuthService {
   }
 
   currentUser$(): Observable<User | null> {
-    return of(this.currentUser());
+    return this.userSubject.asObservable();
   }
 
   isLoggedIn(): boolean {

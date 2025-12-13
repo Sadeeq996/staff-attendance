@@ -10,23 +10,25 @@
 <ion-content class="ion-padding">
 
   <div class="toolbar-row">
-    <ion-button size="small" (click)="prevMonth()">Prev</ion-button>
+    <ion-button size="small" (click)="prevMonth()"><ion-icon [icon]="arrowBack"></ion-icon>Prev</ion-button>
     <div class="month-title">{{ year }} - {{ month }}</div>
-    <ion-button size="small" (click)="nextMonth()">Next</ion-button>
+    <ion-button size="small" (click)="nextMonth()"><ion-icon [icon]="arrowForward"></ion-icon>Next</ion-button>
 
     <div style="flex:1"></div>
 
-    <ion-button color="medium" (click)="copyPreviousMonth()">Copy Prev Month</ion-button>
+    <ion-button color="medium" (click)="copyPreviousMonth()">
+      <ion-icon [icon]="copy"></ion-icon> Copy Prev Month</ion-button>
     <!-- <ion-button color="tertiary" (click)="bulkAssign('off')">Set All Off (Selected User)</ion-button>
     <ion-button color="primary" (click)="bulkAssign('morning')">Set All Morning (Selected User)</ion-button> -->
   </div>
   <div class="toolbar-row">
-    <ion-button color="tertiary" (click)="bulkAssign('off')">Set All Off (Selected User)</ion-button>
+    <ion-button color="tertiary" (click)="bulkAssign('off')"><ion-icon [icon]="close"></ion-icon>Set All Off (Selected
+      User)</ion-button>
     <ion-button color="primary" (click)="bulkAssign('morning')">Set All Morning (Selected User)</ion-button>
   </div>
 
   <ion-item>
-    <ion-label>Select User</ion-label>
+    <ion-label><ion-icon [icon]="person"></ion-icon>Select Staff</ion-label>
     <ion-select [(ngModel)]="selectedUserId" (ionChange)="loadAssignmentsForSelectedUser()">
       <ion-select-option *ngFor="let u of users" [value]="u.id">{{ u.fullName }}</ion-select-option>
     </ion-select>

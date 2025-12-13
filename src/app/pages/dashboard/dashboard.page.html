@@ -69,8 +69,11 @@
         <h3>{{assignedShift | uppercase}}</h3>
         <p>Tap to record attendance</p>
 
-        <ion-button expand="block" (click)="clockIn()" [disabled]="loading || clockingIn || clockInTime">{{clockingIn ?
-          'Clocking In…' : 'Clock In'}}</ion-button>
+        <!-- <ion-button expand="block" (click)="clockIn()" [disabled]="loading || clockingIn || clockInTime">{{clockingIn ?
+          'Clocking In…' : 'Clock In'}}</ion-button> -->
+        <ion-button expand="block" (click)="clockIn()" [disabled]="loading || clockingIn || clockInTime">
+          {{ clockingIn ? 'Clocking In…' : 'Clock In (Scan QR)' }}
+        </ion-button>
         <ion-button expand="block" fill="outline" (click)="clockOut()"
           [disabled]="loading || clockingOut || !clockInTime || clockOutTime">{{clockingOut ? 'Clocking Out…' : 'Clock
           Out'}}</ion-button>

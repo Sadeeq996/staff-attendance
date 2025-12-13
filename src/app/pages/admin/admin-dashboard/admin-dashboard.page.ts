@@ -8,7 +8,7 @@ import { MockDataService } from 'src/app/services/mock-data.service';
 import { ApiService } from 'src/app/services/api.service';
 import { environment } from 'src/environments/environment';
 import { Hospital } from 'src/app/models/hospital';
-import { AlertController, ToastController, ModalController } from '@ionic/angular/standalone';
+import { IonIcon, AlertController, ToastController, ModalController } from '@ionic/angular/standalone';
 import { firstValueFrom } from 'rxjs';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartData, ChartOptions } from 'chart.js';
@@ -17,13 +17,14 @@ import { HospitalModalPage } from '../hospital-modal/hospital-modal.page';
 import { SidebarComponent } from "src/app/shared/sidebar/sidebar.component";
 import { RouterOutlet } from "@angular/router";
 import { HospitalService } from 'src/app/services/hospital.service';
+import { add, addCircle, calendar, home, list, people, qrCode, timer, today } from 'ionicons/icons';
 
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.page.html',
   styleUrls: ['./admin-dashboard.page.scss'],
   standalone: true,
-  imports: [BaseChartDirective, IonBackButton, IonButtons, IonContent, IonTitle, IonToolbar, IonHeader, CommonModule, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonGrid, IonRow, IonCol, IonList, IonItem, IonLabel, SidebarComponent, RouterOutlet, IonMenuButton,]
+  imports: [BaseChartDirective, IonBackButton, IonButtons, IonContent, IonTitle, IonToolbar, IonHeader, CommonModule, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonGrid, IonRow, IonCol, IonList, IonItem, IonLabel, SidebarComponent, RouterOutlet, IonMenuButton, IonIcon]
 })
 export class AdminDashboardPage implements OnInit {
   admin: any;
@@ -43,6 +44,17 @@ export class AdminDashboardPage implements OnInit {
   attendanceTrendData: ChartData<'line'> | undefined;
   attendanceTrendOptions: ChartOptions<'line'> | undefined;
 
+  //ionicons
+  calendar = calendar;
+  home = home;
+  timer = timer;
+  shift = today;
+  people = people;
+  qrcode = qrCode;
+  list = list;
+  addCircle = addCircle;
+
+
   constructor(
     private auth: AuthService,
     private attendance: AttendanceService,
@@ -57,6 +69,9 @@ export class AdminDashboardPage implements OnInit {
   ) { }
 
   async ngOnInit() {
+
+
+
     this.admin = this.auth.currentUser();
     const now = new Date();
     const yyyy = now.getFullYear();
@@ -67,6 +82,7 @@ export class AdminDashboardPage implements OnInit {
     // Load hospitals (for general admin) and compute staff counts
     if (environment.useMock) {
       this.hospitals = this.mockData.getHospitals();
+
     } else {
       try {
         const res = await this.api.getHospitals().toPromise();
@@ -253,6 +269,8 @@ export class AdminDashboardPage implements OnInit {
       } as any;
       this.mockData.addHospital(newHosp);
       this.hospitals = this.mockData.getHospitals();
+      this.totalHospitals = this.mockData.getHospitals().length;
+      console.log('new lenght: ', this.totalHospitals)
       const t = await this.toastCtrl.create({ message: 'Hospital created', duration: 1500 });
       await t.present();
     } else {

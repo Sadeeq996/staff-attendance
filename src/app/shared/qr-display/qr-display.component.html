@@ -1,0 +1,21 @@
+<ng-container *ngIf="qrValue$ | async as value">
+  <ion-card *ngIf="value; else noData">
+    <ion-card-header>
+      <ion-card-title>QR Code</ion-card-title>
+    </ion-card-header>
+    <ion-card-content class="ion-text-center">
+      <qrcode [qrdata]="value" [width]="300"></qrcode>
+    </ion-card-content>
+  </ion-card>
+
+  <ng-template #noData>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>No QR Data</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>No QR code has been generated yet.</p>
+      </ion-card-content>
+    </ion-card>
+  </ng-template>
+</ng-container>

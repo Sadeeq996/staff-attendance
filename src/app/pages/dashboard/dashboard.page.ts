@@ -14,6 +14,7 @@ import { ClockComponent } from 'src/app/shared/clock/clock.component';
 import { ClockAnalogComponent } from 'src/app/shared/clock-analog/clock-analog.component';
 import { SidebarComponent } from "src/app/shared/sidebar/sidebar.component";
 import { ProgressRingComponent } from "src/app/shared/progress-ring/progress-ring.component";
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -120,6 +121,9 @@ export class DashboardPage implements OnInit {
       return;
     }
     if (this.clockInTime) return; // already clocked in
+
+    // Navigate to scanner page
+    this.router.navigate(['/qr-scanner']);
 
     const prev = this.clockInTime;
     this.clockingIn = true;

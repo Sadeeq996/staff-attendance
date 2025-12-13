@@ -1,10 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  IonItem, IonLabel, IonSelect, IonSelectOption,
-  IonButton, IonHeader, IonContent, IonTitle, IonToolbar,
-  IonModal, IonList, IonAvatar, IonGrid, IonRow, IonCol, IonChip, IonButtons, IonNote
-} from '@ionic/angular/standalone';
+import { IonItem, IonLabel, IonSelect, IonSelectOption, IonButton, IonHeader, IonContent, IonTitle, IonToolbar, IonModal, IonList, IonAvatar, IonGrid, IonRow, IonCol, IonChip, IonButtons, IonNote, IonIcon } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/services/auth.service';
 import { ShiftType, ShiftAssignment } from 'src/app/models/shift-assignment';
 import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
@@ -13,6 +9,8 @@ import { firstValueFrom } from 'rxjs';
 import { UserService } from 'src/app/services/user.service';
 import { User, users } from 'src/app/models/user';
 import { MockDataService } from 'src/app/services/mock-data.service';
+import { arrowBack, arrowForward, close, copy, person } from 'ionicons/icons';
+import { IonicModule } from "@ionic/angular";
 
 @Component({
   selector: 'app-shift-planner',
@@ -22,7 +20,7 @@ import { MockDataService } from 'src/app/services/mock-data.service';
   imports: [IonNote, IonButtons,
     IonToolbar, IonTitle, IonContent, IonHeader, CommonModule, FormsModule,
     IonItem, IonLabel, IonSelect, IonSelectOption, IonButton,
-    IonModal, IonList, IonAvatar, IonChip]
+    IonModal, IonList, IonAvatar, IonChip, IonIcon]
 })
 export class ShiftPlannerPage implements OnInit {
   admin: any;
@@ -33,6 +31,14 @@ export class ShiftPlannerPage implements OnInit {
   selectedUserId!: number;
   assignmentsMap: Map<string, ShiftType> = new Map(); // date -> shift (for selected user)
   selectedUser: any;
+
+  //ionicons
+  arrowBack = arrowBack;
+  arrowForward = arrowForward;
+  copy = copy;
+  person = person;
+  close = close;
+
 
   // modal/day view
   modalOpen = false;

@@ -1,6 +1,9 @@
 <ion-header>
     <ion-toolbar>
         <ion-title>Clocked In Records</ion-title>
+        <ion-buttons slot="end">
+            <ion-button href="/admin-dashboard"> <ion-icon [icon]="arrowBack"></ion-icon> Back</ion-button>
+        </ion-buttons>
     </ion-toolbar>
     <ion-toolbar>
         <ion-segment value="daily" (ionChange)="onPeriodChange($event)">

@@ -28,7 +28,7 @@ export const routes: Routes = [
   },
   {
     path: 'staff-list',
-    loadComponent: () => import('./pages/staff/staff-list/staff-list.page').then(m => m.StaffListPage)
+    loadComponent: () => import('./pages/admin/staff-list/staff-list.page').then(m => m.StaffListPage)
   },
   {
     path: 'my-shifts',
@@ -54,4 +54,13 @@ export const routes: Routes = [
     path: 'admin-dashboard',
     loadComponent: () => import('./pages/admin/admin-dashboard/admin-dashboard.page').then(m => m.AdminDashboardPage)
   },
+  {
+    path: 'qr-generator',
+    loadComponent: () => import('./pages/admin/qr-generator/qr-generator.page').then(m => m.QrGeneratorPage)
+  },
+  {
+    path: 'qr-scanner',
+    loadComponent: () => import('./pages/staff/qr-scanner/qr-scanner.page').then(m => m.QrScannerPage)
+  },
+
 ];

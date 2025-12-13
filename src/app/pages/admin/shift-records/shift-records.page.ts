@@ -1,19 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonDatetime, IonNote, IonChip } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonDatetime, IonNote, IonChip, IonButtons, IonButton, IonIcon } from '@ionic/angular/standalone';
 import { ShiftPlannerService } from 'src/app/services/shift-planner-service';
 import { AuthService } from 'src/app/services/auth.service';
 import { UserService } from 'src/app/services/user.service';
 import { firstValueFrom } from 'rxjs';
 import { ShiftAssignment } from 'src/app/models/shift-assignment';
+import { arrowBack } from 'ionicons/icons';
 
 @Component({
     selector: 'app-shift-records',
     templateUrl: './shift-records.page.html',
     styleUrls: ['./shift-records.page.scss'],
     standalone: true,
-    imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonDatetime, IonNote, IonChip, CommonModule, FormsModule]
+    imports: [IonIcon, IonButton, IonButtons, IonHeader, IonToolbar, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonDatetime, IonNote, IonChip, CommonModule, FormsModule]
 })
 export class ShiftRecordsPage implements OnInit {
     period: 'daily' | 'weekly' | 'monthly' = 'daily';
@@ -22,6 +23,9 @@ export class ShiftRecordsPage implements OnInit {
     groupedShifts: { shift: string; count: number; staff: any[] }[] = [];
     loading = false;
     admin: any;
+
+    //ionicons
+    arrowBack = arrowBack;
 
     constructor(private planner: ShiftPlannerService, private auth: AuthService, private userService: UserService) { }
 

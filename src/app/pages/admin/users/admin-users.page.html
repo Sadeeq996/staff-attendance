@@ -2,24 +2,24 @@
     <ion-toolbar>
         <ion-title>Manage Users</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="openCreate()">Create</ion-button>
+            <ion-button (click)="openCreate()"><ion-icon [icon]="personAdd"></ion-icon> Add</ion-button>
         </ion-buttons>
         <ion-buttons slot="start">
-            <ion-button href="/admin-dashboard">Back</ion-button>
+            <ion-button href="/admin-dashboard"> <ion-icon [icon]="arrowBack"></ion-icon> Back</ion-button>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
     <ion-item>
-        <ion-label>Role</ion-label>
+        <ion-label><ion-icon [icon]="cube"></ion-icon>Role</ion-label>
         <ion-select [(ngModel)]="roleFilter" (ionChange)="applyFilters()">
             <ion-select-option value="">All</ion-select-option>
             <ion-select-option value="general_admin">General Admin</ion-select-option>
             <ion-select-option value="hospital_admin">Hospital Admin</ion-select-option>
             <ion-select-option value="staff">Staff</ion-select-option>
         </ion-select>
-        <ion-label style="margin-left:12px">Hospital</ion-label>
+        <ion-label style="margin-left:12px"><ion-icon [icon]="home"></ion-icon>Hospital</ion-label>
         <ion-select [(ngModel)]="hospitalFilter" (ionChange)="applyFilters()">
             <ion-select-option value="">All</ion-select-option>
             <ion-select-option *ngFor="let h of hospitals" [value]="h.id">{{h.name}}</ion-select-option>
@@ -33,8 +33,9 @@
                 <p>{{u.email}} — {{u.role}}{{u.hospitalId ? (' — ' + u.hospitalId) : ''}}</p>
             </ion-label>
             <ion-buttons slot="end">
-                <ion-button (click)="openEdit(u)">Edit</ion-button>
-                <ion-button color="danger" (click)="deleteUser(u)">Delete</ion-button>
+                <ion-button (click)="openEdit(u)"><ion-icon [icon]="fileTray"></ion-icon>Edit</ion-button>
+                <ion-button color="danger" (click)="deleteUser(u)"><ion-icon [icon]="close" color="danger">
+                    </ion-icon>Delete</ion-button>
             </ion-buttons>
         </ion-item>
     </ion-list>
